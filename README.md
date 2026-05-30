@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FindIt All
 
-## Getting Started
+> 배터리 없는 스티커 태그로, 필요한 물건을 언제나 찾다.
+> FindIt Hub가 태그의 고유 ID를 감지하고, 앱이 위치를 안내합니다.
 
-First, run the development server:
+배터리 없는 초박형 스티커 태그를 물건에 붙이고, 공간에 설치된 **FindIt Hub**가 각 태그의 고유 ID와 신호 강도를 감지해 **구역 단위 위치**를 추정하는 실내 분실물·자산 관리 웹앱입니다.
+
+⚠️ 현재는 **프로토타입 데모**입니다. 허브 감지값·신호 강도·위치 추정·분실 알림·탐색 모드는 모두 **더미 데이터와 시뮬레이션**으로 동작합니다 (실제 하드웨어 연동 없음).
+
+## 실행 방법
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # 개발 서버 (http://localhost:3000)
+# 또는
+npm run build && npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 두 가지 모드
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+상단 네비게이션에서 **개인 사용자 / 기관 사용자** 탭을 전환합니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🏠 개인 사용자 — 집 안 물건 찾기
+- **대시보드** — 등록 물건·감지 현황·허브 상태·“지금 찾기”
+- **내 물건** — 카드/테이블 뷰, 검색·필터·정렬, 상세 보기
+- **허브** — 거실/침실/현관/서재 허브 관리 + 재검색
+- **실내 지도** — 집 구조도에서 구역 단위 위치 하이라이트
+- **찾기 모드** — 신호 게이지 애니메이션, 가까워짐/멀어짐, 탐색 팁
+- **Guest Find** — 임시 접근 코드로 가족 기기에서 탐색
+- **알림/히스토리**, **요금제(스타터 킷 + 앱 구독)**
 
-## Learn More
+### 🏢 기관 사용자 — SaaS 자산관리
+- **대시보드** — KPI 카드 + recharts 차트(감지 로그·카테고리·구역 밀집도)
+- **자산 목록** — 부서/담당자/중요도 포함 테이블, 다중 필터
+- **자산 맵** — 층·구역별 카드 맵, 자산 선택 시 구역 하이라이트
+- **허브/구역** — 허브 추가·수정·삭제(CRUD)
+- **자산 탐색** — 탐색 모드 + 반출/이탈(지오펜스) 알림 시뮬레이션
+- **권한 관리** — Admin/Manager/Staff/Viewer 역할 기반(RBAC)
+- **리포트** — 월간 지표, TOP 5 자산, 문제 구역, 개선 제안
+- **요금제** — Small Team / Facility Pro / Enterprise
 
-To learn more about Next.js, take a look at the following resources:
+## 기술 스택
+- **Next.js 16** (App Router) · **React 19** · **TypeScript**
+- **Tailwind CSS v4** — 다크 네이비/차콜 + 핑크/민트 포인트
+- **lucide-react** 아이콘 · **recharts** 차트
+- 백엔드 없이 **localStorage + React state** 기반 (`findit-all-state-v1`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 시뮬레이션
+- 신호 강도 변동(40~95), 찾기 모드 게이지 애니메이션 (`useSignalSim`)
+- 허브 재검색·온/오프라인, 감지 로그 생성, 분실/찾음 상태 변경
+- 자산 구역 이탈 알림, 토스트/모달/상태 변경 인터랙션
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 핵심 메시지
+정확한 GPS가 아닌 **허브 신호 강도 기반의 구역 단위 위치 추정**입니다.
+AirTag가 비싼 물건 몇 개를 추적한다면, **FindIt All은 많은 물건을 얇고 저렴하게** 관리합니다.
