@@ -33,7 +33,7 @@ export function PersonalHubs() {
     <div className="space-y-4">
       <SectionTitle
         title="허브 관리"
-        desc="집 안에 설치된 FindIt Hub를 관리합니다"
+        desc="집 안에 설치된 BOMI Hub의 생활 신호·RFID 감지 상태를 관리합니다"
         icon={<Router className="size-5" />}
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -82,9 +82,9 @@ export function PersonalHubs() {
       </div>
 
       <Card className="bg-surface/30 text-xs text-muted">
-        💡 허브는 주변 배터리 없는 스티커 태그의 고유 ID와 신호 강도를 감지합니다.
-        오프라인 허브는 전원과 네트워크 연결을 확인해주세요. 위치는 정확한 좌표가
-        아닌 구역 단위로 추정됩니다.
+        BOMI Hub는 Wi-Fi CSI 생활 신호와 배터리 없는 RFID 태그의 구역 단위
+        위치 변화를 함께 감지합니다. 오프라인 허브는 전원과 네트워크 연결을
+        확인해주세요.
       </Card>
     </div>
   );

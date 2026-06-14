@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Radar, Bell, Home, Building2, Sparkles } from "lucide-react";
+import { Bell, Home, Building2, Sparkles, ShieldCheck } from "lucide-react";
 import { cn, timeAgo } from "@/lib/utils";
 import { useNotifications, useStore } from "@/lib/store";
 import type { OwnerType } from "@/lib/types";
@@ -13,15 +13,19 @@ export function Logo({ onClick }: { onClick?: () => void }) {
     <button
       onClick={onClick}
       className="group flex items-center gap-2.5"
-      aria-label="FindIt All 홈"
+      aria-label="BOMI 홈"
     >
       <span className="relative grid size-9 place-items-center rounded-xl bg-gradient-to-br from-pink to-mint shadow-lg shadow-pink/20">
-        <Radar className="size-5 text-white" />
+        <ShieldCheck className="size-5 text-[#17150f]" />
         <span className="absolute inset-0 rounded-xl border border-white/20" />
       </span>
-      <span className="text-lg font-extrabold tracking-tight">
-        <span className="text-text">FindIt</span>{" "}
-        <span className="gradient-text">All</span>
+      <span className="flex flex-col items-start leading-none">
+        <span className="text-lg font-extrabold tracking-[0.08em] text-text">
+          BOMI
+        </span>
+        <span className="mt-1 hidden text-[9px] font-medium tracking-[0.08em] text-muted sm:block">
+          CARE WITHOUT CAMERAS
+        </span>
       </span>
     </button>
   );
@@ -107,8 +111,8 @@ export function Header({
   setMode: (m: Mode) => void;
 }) {
   const tabs: { key: Mode; label: string; icon: typeof Home }[] = [
-    { key: "personal", label: "개인 사용자", icon: Home },
-    { key: "organization", label: "기관 사용자", icon: Building2 },
+    { key: "personal", label: "BOMI Family", icon: Home },
+    { key: "organization", label: "BOMI Facility", icon: Building2 },
   ];
 
   return (
@@ -144,7 +148,7 @@ export function Header({
               onClick={() => setMode("personal")}
               className="hidden items-center gap-1.5 rounded-xl bg-gradient-to-br from-pink to-pink-soft px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-pink/20 transition hover:brightness-110 sm:flex"
             >
-              <Sparkles className="size-4" />앱 둘러보기
+              <Sparkles className="size-4" />Family 데모 보기
             </button>
           ) : (
             <NotificationBell ownerType={mode} />

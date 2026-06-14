@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FindIt All — 배터리 없는 스티커 태그 실내 분실물·자산 관리",
+  title: "BOMI — 카메라 없이 지켜주는 생활 안전 돌봄 허브",
   description:
-    "배터리 없는 스티커 태그로 필요한 물건을 언제나 찾다. FindIt Hub가 태그의 고유 ID를 감지하고, 앱이 구역 단위로 위치를 안내합니다.",
+    "Wi-Fi CSI와 배터리 없는 RFID 태그로 생활 변화, 복약, 외출·귀가, 필수 물품 상태를 필요한 이벤트로 전달하는 프라이버시 중심 돌봄 서비스입니다.",
 };
 
 export default function RootLayout({

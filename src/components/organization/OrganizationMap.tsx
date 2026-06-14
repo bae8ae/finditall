@@ -1,50 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { MapPinned, Wifi, Boxes, AlertTriangle, Crosshair, Building2 } from "lucide-react";
-import { Card, Button, SectionTitle, Select } from "../ui/primitives";
-import { TagIcon } from "../TagIcon";
-import { StatusBadge } from "../StatusBadge";
-import { RadarDot } from "../SignalGauge";
-import { useTags, useZones, useHubs } from "@/lib/store";
+import {
+  AlertTriangle,
+  BellRing,
+  Building2,
+  MapPinned,
+  Router,
+  Users,
+} from "lucide-react";
+import { Card, SectionTitle } from "../ui/primitives";
+import { useHubs, useStore, useTags, useZones } from "@/lib/store";
+import { organizationCareEvents } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import type { Tag } from "@/lib/types";
 
-export function OrganizationMap({ onSearch }: { onSearch: (t: Tag) => void }) {
-  const tags = useTags("organization");
+export function OrganizationMap() {
+  const users = useTags("organization");
   const zones = useZones("organization");
   const hubs = useHubs("organization");
-
-  const floors = [...new Set(zones.map((z) => z.floor))];
+  const { state } = useStore();
+  const events = organizationCareEvents(state.now);
+  const floors = [...new Set(zones.map((zone) => zone.floor))];
   const [floor, setFloor] = useState("all");
-  const [selectedTagId, setSelectedTagId] = useState<string>("");
-
-  const selectedTag = tags.find((t) => t.id === selectedTagId) ?? null;
   const visibleZones =
-    floor === "all" ? zones : zones.filter((z) => z.floor === floor);
+    floor === "all" ? zones : zones.filter((zone) => zone.floor === floor);
 
   return (
     <div className="space-y-4">
       <SectionTitle
-        title="실내 자산 맵"
-        desc="층·구역별 자산 분포 · 자산 선택 시 감지 구역 하이라이트"
+        title="구역 맵"
+        desc="구역별 이용자, BOMI Hub, 확인 필요 이벤트를 함께 봅니다."
         icon={<MapPinned className="size-5" />}
-        action={
-          <Select
-            value={selectedTagId}
-            onChange={(e) => setSelectedTagId(e.target.value)}
-            className="w-52"
-          >
-            <option value="">자산 선택…</option>
-            {tags.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </Select>
-        }
       />
 
       <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-        {/* floor / zone list */}
         <Card className="h-fit p-3">
           <p className="mb-2 px-1 text-xs font-semibold text-muted">층 / 구역</p>
           <button
@@ -56,100 +45,97 @@ export function OrganizationMap({ onSearch }: { onSearch: (t: Tag) => void }) {
           >
             <Building2 className="size-4" /> 전체 층
           </button>
-          {floors.map((f) => {
-            const fz = zones.filter((z) => z.floor === f);
-            const assetCount = tags.filter((t) =>
-              fz.some((z) => z.id === t.homeZoneId),
+          {floors.map((item) => {
+            const floorZones = zones.filter((zone) => zone.floor === item);
+            const userCount = users.filter((user) =>
+              floorZones.some((zone) => zone.id === user.homeZoneId),
             ).length;
             return (
               <button
-                key={f}
-                onClick={() => setFloor(f)}
+                key={item}
+                onClick={() => setFloor(item)}
                 className={cn(
                   "mb-1 flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-                  floor === f ? "bg-mint/12 text-mint" : "text-muted hover:text-text",
+                  floor === item ? "bg-mint/12 text-mint" : "text-muted hover:text-text",
                 )}
               >
-                <span>{f}</span>
-                <span className="text-[11px] text-muted">{assetCount}개</span>
+                <span>{item}</span>
+                <span className="text-[11px] text-muted">{userCount}명</span>
               </button>
             );
           })}
         </Card>
 
-        {/* zone cards */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {visibleZones.map((z) => {
-            const zoneHubs = hubs.filter((h) => h.zoneId === z.id);
-            const zoneTags = tags.filter((t) => t.homeZoneId === z.id);
-            const missingCount = zoneTags.filter(
-              (t) => t.status === "missing" || t.status === "lowSignal",
+          {visibleZones.map((zone) => {
+            const zoneHubs = hubs.filter((hub) => hub.zoneId === zone.id);
+            const zoneUsers = users.filter((user) => user.homeZoneId === zone.id);
+            const zoneEvents = events.filter((event) => event.location === zone.name);
+            const urgentCount = zoneEvents.filter(
+              (event) =>
+                event.severity === "warning" || event.severity === "critical",
             ).length;
-            const isActive = selectedTag?.homeZoneId === z.id;
+
             return (
               <Card
-                key={z.id}
+                key={zone.id}
                 className={cn(
-                  "space-y-3 transition",
-                  isActive && "border-mint bg-mint/10 shadow-[0_0_24px_-6px] shadow-mint/40",
+                  "space-y-4 transition",
+                  urgentCount > 0 && "border-warn/35 bg-warn/5",
                 )}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className={cn("text-sm font-bold", isActive ? "text-mint" : "text-text")}>
-                      {z.name}
+                    <p className="text-sm font-bold text-text">{zone.name}</p>
+                    <p className="mt-0.5 text-[11px] text-muted">
+                      {zone.floor} · {zone.description}
                     </p>
-                    <p className="text-[11px] text-muted">{z.floor} · {z.description}</p>
                   </div>
-                  {isActive && <RadarDot active />}
-                </div>
-
-                <div className="grid grid-cols-3 gap-1.5 text-center">
-                  <Mini icon={<Wifi className="size-3.5" />} label="허브" value={zoneHubs.length} />
-                  <Mini icon={<Boxes className="size-3.5" />} label="자산" value={zoneTags.length} />
-                  <Mini
-                    icon={<AlertTriangle className="size-3.5" />}
-                    label="의심"
-                    value={missingCount}
-                    danger={missingCount > 0}
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {zoneTags.slice(0, 6).map((t) => (
-                    <span
-                      key={t.id}
-                      title={t.name}
-                      onClick={() => setSelectedTagId(t.id)}
-                      className={cn(
-                        "grid size-7 cursor-pointer place-items-center rounded-md transition",
-                        t.id === selectedTagId
-                          ? "bg-mint text-[#04221c]"
-                          : "bg-surface-2 text-muted hover:text-text",
-                      )}
-                    >
-                      <TagIcon icon={t.icon} className="size-4" />
-                    </span>
-                  ))}
-                  {zoneTags.length === 0 && (
-                    <span className="text-[11px] text-muted">등록된 자산 없음</span>
+                  {urgentCount > 0 && (
+                    <span className="fit-pulse size-2.5 rounded-full bg-warn" />
                   )}
                 </div>
 
-                {isActive && selectedTag && (
-                  <div className="rounded-lg border border-mint/30 bg-mint/5 p-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-text">{selectedTag.name}</span>
-                      <StatusBadge status={selectedTag.status} />
-                    </div>
-                    <Button
-                      variant="mint"
-                      size="sm"
-                      className="mt-2 w-full"
-                      onClick={() => onSearch(selectedTag)}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <Mini
+                    icon={<Users className="size-3.5" />}
+                    label="이용자"
+                    value={zoneUsers.length}
+                  />
+                  <Mini
+                    icon={<Router className="size-3.5" />}
+                    label="허브"
+                    value={zoneHubs.length}
+                  />
+                  <Mini
+                    icon={<BellRing className="size-3.5" />}
+                    label="이벤트"
+                    value={zoneEvents.length}
+                    danger={urgentCount > 0}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  {zoneUsers.slice(0, 4).map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between rounded-lg border border-border-soft bg-surface/40 px-3 py-2"
                     >
-                      <Crosshair className="size-3.5" /> 탐색 시작
-                    </Button>
+                      <span className="text-xs text-text">{user.name}</span>
+                      <span className="text-[10px] text-muted">{user.assignee}</span>
+                    </div>
+                  ))}
+                  {zoneUsers.length === 0 && (
+                    <p className="rounded-lg border border-dashed border-border-soft py-4 text-center text-xs text-muted">
+                      등록 이용자 없음
+                    </p>
+                  )}
+                </div>
+
+                {urgentCount > 0 && (
+                  <div className="flex items-start gap-2 rounded-xl border border-warn/25 bg-warn/8 p-3 text-xs text-muted">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warn" />
+                    {urgentCount}건의 확인 필요 이벤트가 있습니다.
                   </div>
                 )}
               </Card>
@@ -174,10 +160,12 @@ function Mini({
 }) {
   return (
     <div className="rounded-lg border border-border-soft bg-surface/40 py-2">
-      <span className={cn("mx-auto mb-1 flex justify-center", danger ? "text-danger" : "text-mint")}>
+      <span className={cn("mx-auto mb-1 flex justify-center", danger ? "text-warn" : "text-mint")}>
         {icon}
       </span>
-      <p className={cn("text-sm font-bold", danger ? "text-danger" : "text-text")}>{value}</p>
+      <p className={cn("text-sm font-bold", danger ? "text-warn" : "text-text")}>
+        {value}
+      </p>
       <p className="text-[10px] text-muted">{label}</p>
     </div>
   );

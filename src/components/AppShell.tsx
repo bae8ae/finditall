@@ -23,7 +23,7 @@ export function AppShell() {
         <div className="fit-pulse">
           <Logo />
         </div>
-        <p className="text-sm text-muted">FindIt All 불러오는 중…</p>
+        <p className="text-sm text-muted">BOMI가 조용히 연결되는 중…</p>
       </div>
     );
   }

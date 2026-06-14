@@ -37,7 +37,7 @@ export function AddTagModal({
 
   function submit() {
     if (!name.trim()) {
-      toast({ kind: "error", title: "물건 이름을 입력해주세요." });
+      toast({ kind: "error", title: "복약·필수 물품 이름을 입력해주세요." });
       return;
     }
     const zone = zones.find((z) => z.id === zoneId);
@@ -59,11 +59,11 @@ export function AddTagModal({
       ownerType: "personal",
       kind: "ok",
       title: "새 태그 등록",
-      body: `${name.trim()}에 배터리 없는 스티커 태그를 등록했습니다.`,
+      body: `${name.trim()}에 배터리 없는 RFID 태그를 등록했습니다.`,
     });
     toast({
       kind: "success",
-      title: "스티커 태그 등록 완료",
+      title: "RFID 태그 등록 완료",
       desc: `${name.trim()} · ${category}`,
     });
     reset();
@@ -74,8 +74,8 @@ export function AddTagModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="새 스티커 태그 등록"
-      desc="배터리 없는 스티커 태그를 물건에 붙이고 정보를 입력하세요."
+      title="새 RFID 태그 등록"
+      desc="약통이나 필수 물품에 배터리 없는 RFID 태그를 붙이고 정보를 입력하세요."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -88,11 +88,11 @@ export function AddTagModal({
       }
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="물건 이름" required>
+        <Field label="복약·필수 물품 이름" required>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="예: 지갑, 열쇠, 리모컨"
+            placeholder="예: 저녁 약통, 열쇠, 외출가방"
           />
         </Field>
         <Field label="태그 ID" hint="비워두면 자동 생성됩니다.">

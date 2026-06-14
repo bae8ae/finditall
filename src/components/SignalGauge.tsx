@@ -3,10 +3,10 @@
 import { cn, signalLabel, clamp } from "@/lib/utils";
 
 function toneColor(s: number): string {
-  if (s >= 70) return "#2fe0c0";
-  if (s >= 45) return "#fbbf24";
-  if (s >= 20) return "#fb6a72";
-  return "#8a99b8";
+  if (s >= 70) return "#8fa37a";
+  if (s >= 45) return "#d9a441";
+  if (s >= 20) return "#e66b6b";
+  return "#afa89a";
 }
 
 /** Horizontal signal bar with segmented fill. */
@@ -97,7 +97,7 @@ export function SignalRing({
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="#161f33"
+          stroke="#1f241e"
           strokeWidth={stroke}
         />
         <circle
@@ -154,7 +154,7 @@ export function RadarDot({ active }: { active?: boolean }) {
           style={{
             width: 18,
             height: 18,
-            border: "2px solid #2fe0c0",
+            border: "2px solid #8fa37a",
             animation: "fitPing 1.8s ease-out infinite",
           }}
         />

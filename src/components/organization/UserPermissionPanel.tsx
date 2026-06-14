@@ -11,8 +11,8 @@ import type { OrgMember, UserRole } from "@/lib/types";
 
 const ROLE_DESC: { role: UserRole; label: string; desc: string }[] = [
   { role: "admin", label: "Admin", desc: "전체 관리 · 설정 · 권한 부여" },
-  { role: "manager", label: "Manager", desc: "자산 등록 · 수정 · 허브 관리" },
-  { role: "staff", label: "Staff", desc: "탐색 및 찾음 처리 가능" },
+  { role: "manager", label: "Manager", desc: "이용자 · 이벤트 · 허브 운영 관리" },
+  { role: "staff", label: "Staff", desc: "담당 이벤트 확인 및 조치 처리" },
   { role: "viewer", label: "Viewer", desc: "조회만 가능" },
 ];
 
@@ -57,7 +57,7 @@ export function UserPermissionPanel() {
     <div className="space-y-4">
       <SectionTitle
         title="권한 관리"
-        desc="역할 기반 접근 제어 (RBAC)"
+        desc="이용자 정보와 생활 안전 이벤트의 역할 기반 접근 제어 (RBAC)"
         icon={<Shield className="size-5" />}
         action={
           <Button variant="mint" onClick={() => setOpen(true)}>

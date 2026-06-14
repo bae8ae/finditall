@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Router, Plus, RefreshCw, Pencil, Trash2, Wifi, Radius, Boxes,
+  Router, Plus, RefreshCw, Pencil, Trash2, Wifi, Radius, Users,
 } from "lucide-react";
 import { Card, Button, SectionTitle, Modal, Field, Input, Select } from "../ui/primitives";
 import { StatusBadge } from "../StatusBadge";
@@ -45,7 +45,7 @@ export function HubManagement() {
     <div className="space-y-4">
       <SectionTitle
         title="허브 / 구역 관리"
-        desc="여러 층·구역의 FindIt Hub를 추가·수정·삭제"
+        desc="여러 생활 구역의 BOMI Hub 상태와 감지 범위를 관리합니다"
         icon={<Router className="size-5" />}
         action={
           <Button variant="mint" onClick={() => setCreating(true)}>
@@ -81,7 +81,7 @@ export function HubManagement() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 rounded-xl border border-border-soft bg-surface/40 p-2.5 text-center">
-                <M icon={<Boxes className="size-3.5" />} label="자산" value={`${h.connectedTagsCount}`} />
+                <M icon={<Users className="size-3.5" />} label="감지 대상" value={`${h.connectedTagsCount}`} />
                 <M icon={<Radius className="size-3.5" />} label="반경" value={`${h.coverageRadius}m`} />
                 <M
                   icon={<RefreshCw className="size-3.5" />}
@@ -205,7 +205,7 @@ function HubModal({
       open={open}
       onClose={onClose}
       title={hub ? "허브 수정" : "허브 추가"}
-      desc="구역에 설치된 FindIt Hub 정보를 입력하세요."
+      desc="생활 구역에 설치된 BOMI Hub 정보를 입력하세요."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>취소</Button>

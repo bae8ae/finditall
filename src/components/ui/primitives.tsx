@@ -18,8 +18,8 @@ type Size = "sm" | "md" | "lg" | "icon";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-br from-pink to-pink-soft text-white shadow-lg shadow-pink/20 hover:brightness-110",
-  mint: "bg-gradient-to-br from-mint to-mint-soft text-[#04221c] font-semibold shadow-lg shadow-mint/20 hover:brightness-105",
+    "bg-gradient-to-br from-pink to-pink-soft text-[#17150f] shadow-lg shadow-pink/20 hover:brightness-110",
+  mint: "bg-gradient-to-br from-mint to-mint-soft text-[#10130f] font-semibold shadow-lg shadow-mint/20 hover:brightness-105",
   ghost: "text-muted hover:text-text hover:bg-surface-2",
   outline: "border border-border bg-surface/60 text-text hover:bg-surface-2 hover:border-border",
   danger: "bg-danger/15 text-danger border border-danger/40 hover:bg-danger/25",

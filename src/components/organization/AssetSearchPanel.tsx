@@ -1,146 +1,171 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Crosshair, Search, LogOut, Zap, AlertTriangle, MapPin, ArrowRight,
+  BellRing,
+  CheckCircle2,
+  Filter,
+  MapPin,
+  Search,
+  ShieldAlert,
 } from "lucide-react";
-import { Card, Button, SectionTitle, Input } from "../ui/primitives";
-import { StatusBadge } from "../StatusBadge";
-import { TagIcon } from "../TagIcon";
-import { useTags, useZones, useStore, useNotifications } from "@/lib/store";
+import { Button, Card, Chip, Input, SectionTitle } from "../ui/primitives";
+import { organizationCareEvents } from "@/lib/mock-data";
+import { useStore } from "@/lib/store";
+import { cn, formatTime, timeAgo } from "@/lib/utils";
 import { useToast } from "../ui/toast";
-import { timeAgo } from "@/lib/utils";
-import type { Tag } from "@/lib/types";
 
-export function AssetSearchPanel({ onSearch }: { onSearch: (t: Tag) => void }) {
-  const tags = useTags("organization");
-  const zones = useZones("organization");
-  const { state, updateTag, addNotification } = useStore();
-  const geofenceAlerts = useNotifications("organization").filter((n) =>
-    ["구역 이탈", "지정 구역 밖 감지", "장기 미감지"].includes(n.title),
-  );
+const FILTERS = ["전체", "확인 필요", "복약", "무반응", "외출·귀가", "허브"];
+const STATUS = {
+  new: "확인 필요",
+  checking: "확인 중",
+  confirmed: "확인됨",
+  resolved: "조치 완료",
+};
+const SEVERITY = {
+  info: "border-info/25 bg-info/5 text-info",
+  normal: "border-mint/25 bg-mint/5 text-mint",
+  warning: "border-warn/30 bg-warn/5 text-warn",
+  critical: "border-danger/30 bg-danger/5 text-danger",
+};
+
+export function AssetSearchPanel() {
+  const { state } = useStore();
   const toast = useToast();
-  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("전체");
+  const [query, setQuery] = useState("");
+  const [confirmed, setConfirmed] = useState<string[]>([]);
+  const events = organizationCareEvents(state.now);
 
-  const results = tags.filter(
-    (t) =>
-      !q ||
-      t.name.toLowerCase().includes(q.toLowerCase()) ||
-      t.tagCode.toLowerCase().includes(q.toLowerCase()),
+  const filtered = useMemo(
+    () =>
+      events.filter((event) => {
+        const matchesQuery =
+          !query ||
+          (event.personName ?? "").includes(query) ||
+          event.location.includes(query) ||
+          event.type.includes(query);
+        const matchesFilter =
+          filter === "전체" ||
+          (filter === "확인 필요" &&
+            (event.status === "new" || event.status === "checking")) ||
+          (filter === "복약" && event.type.includes("복약")) ||
+          (filter === "무반응" && event.type === "장시간 무반응") ||
+          (filter === "외출·귀가" &&
+            ["외출 감지", "귀가 감지", "보호자 확인 요청"].includes(event.type)) ||
+          (filter === "허브" && event.type === "허브 오프라인");
+        return matchesQuery && matchesFilter;
+      }),
+    [events, filter, query],
   );
 
-  // simulate an asset leaving its assigned zone
-  function simulateExit() {
-    const candidate =
-      tags.find((t) => t.status === "normal" && t.importance === "high") ??
-      tags[0];
-    if (!candidate) return;
-    const otherZone =
-      zones.find((z) => z.id !== candidate.homeZoneId) ?? zones[0];
-    updateTag(candidate.id, {
-      status: "searching",
-      lastDetectedZone: otherZone.name,
-      lastDetectedHub: `${otherZone.name} 허브`,
-    });
-    addNotification({
-      ownerType: "organization",
-      kind: "danger",
-      title: "구역 이탈",
-      body: `${candidate.name}이(가) 지정 구역을 벗어나 ${otherZone.name}에서 감지되었습니다.`,
-    });
+  function confirmEvent(id: string, title: string) {
+    setConfirmed((current) => [...new Set([...current, id])]);
     toast({
-      kind: "warn",
-      title: "반출/이탈 감지",
-      desc: `${candidate.name} → ${otherZone.name}`,
+      kind: "success",
+      title: "담당자 확인 완료",
+      desc: `${title} 이벤트가 확인 처리되었습니다.`,
     });
   }
 
   return (
     <div className="space-y-4">
       <SectionTitle
-        title="자산 탐색 & 이탈 알림"
-        desc="자산을 선택해 탐색 모드를 열고, 지정 구역 이탈을 모니터링합니다"
-        icon={<Crosshair className="size-5" />}
-        action={
-          <Button variant="outline" onClick={simulateExit}>
-            <Zap className="size-4" /> 이탈 시뮬레이션
-          </Button>
-        }
+        title="이벤트 관제"
+        desc="생활 안전 이벤트의 심각도, 보호자 알림, 담당자 확인 상태를 관리합니다."
+        icon={<ShieldAlert className="size-5" />}
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        {/* quick search */}
-        <Card>
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="탐색할 자산 검색 (이름 · 태그 ID)"
-              className="pl-9"
-            />
-          </div>
-          <div className="max-h-[460px] space-y-2 overflow-y-auto pr-1">
-            {results.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => onSearch(t)}
-                className="flex w-full items-center gap-3 rounded-xl border border-border-soft bg-surface/40 p-3 text-left transition hover:border-mint/40"
-              >
-                <span className="grid size-10 place-items-center rounded-xl bg-surface-2 text-mint">
-                  <TagIcon icon={t.icon} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold text-text">{t.name}</p>
-                    <StatusBadge status={t.status} />
-                  </div>
-                  <p className="text-xs text-muted">
-                    {t.lastDetectedZone} · {t.department} · {timeAgo(t.lastDetectedAt, state.now)}
-                  </p>
-                </div>
-                <span className="flex items-center gap-1 text-xs font-semibold text-mint">
-                  탐색 <ArrowRight className="size-3.5" />
-                </span>
-              </button>
-            ))}
-            {results.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted">검색 결과가 없습니다.</p>
-            )}
-          </div>
-        </Card>
+      <Card className="space-y-3 p-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="이용자, 구역 또는 이벤트 검색"
+            className="pl-9"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Filter className="size-3.5 text-muted" />
+          {FILTERS.map((item) => (
+            <Chip key={item} active={filter === item} onClick={() => setFilter(item)}>
+              {item}
+            </Chip>
+          ))}
+          <span className="ml-auto text-xs text-muted">{filtered.length}건</span>
+        </div>
+      </Card>
 
-        {/* geofence alerts */}
-        <Card className="h-fit">
-          <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-text">
-            <LogOut className="size-4 text-danger" /> 반출 / 이탈 알림
-          </p>
-          <div className="space-y-2.5">
-            {geofenceAlerts.length === 0 && (
-              <p className="py-6 text-center text-xs text-muted">
-                현재 이탈 알림이 없습니다.
-              </p>
-            )}
-            {geofenceAlerts.map((a) => (
-              <div
-                key={a.id}
-                className="rounded-xl border border-danger/25 bg-danger/5 p-3"
-              >
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-danger">
-                  <AlertTriangle className="size-3.5" /> {a.title}
+      <div className="space-y-3">
+        {filtered.map((event) => {
+          const isConfirmed = confirmed.includes(event.id);
+          return (
+            <Card
+              key={event.id}
+              className={cn(
+                "grid gap-4 p-4 lg:grid-cols-[100px_1.1fr_1fr_120px_130px] lg:items-center",
+                event.severity === "critical" && "border-danger/30",
+              )}
+            >
+              <div>
+                <p className="font-mono text-sm font-semibold text-text">
+                  {formatTime(event.timestamp)}
                 </p>
-                <p className="mt-1 text-xs text-muted">{a.body}</p>
-                <p className="mt-1 text-[11px] text-muted/70">
-                  {timeAgo(a.timestamp, state.now)}
+                <p className="text-[10px] text-muted">
+                  {timeAgo(event.timestamp, state.now)}
                 </p>
               </div>
-            ))}
-          </div>
-          <div className="mt-3 rounded-lg border border-border-soft bg-surface/40 p-2.5 text-[11px] text-muted">
-            <MapPin className="mr-1 inline size-3 text-mint" />
-            지정 구역을 벗어난 자산은 가장 가까운 허브 기준으로 구역 단위 추정됩니다.
-          </div>
-        </Card>
+
+              <div>
+                <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold", SEVERITY[event.severity])}>
+                  {event.type}
+                </span>
+                <p className="mt-2 text-sm font-semibold text-text">
+                  {event.personName ?? "BOMI Hub"}
+                </p>
+              </div>
+
+              <div>
+                <p className="flex items-center gap-1 text-xs font-medium text-text">
+                  <MapPin className="size-3 text-mint" /> {event.location}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">
+                  {event.description}
+                </p>
+              </div>
+
+              <div className="text-xs">
+                <p className="text-muted">보호자 알림</p>
+                <p className="mt-1 font-medium text-text">
+                  {event.guardianNotified ? "전송됨" : "없음"}
+                </p>
+              </div>
+
+              <div>
+                {isConfirmed || event.status === "resolved" ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-mint/10 px-3 py-2 text-xs font-semibold text-mint">
+                    <CheckCircle2 className="size-3.5" /> 확인 완료
+                  </span>
+                ) : event.status === "confirmed" ? (
+                  <span className="text-xs font-medium text-muted">
+                    {STATUS[event.status]}
+                  </span>
+                ) : (
+                  <Button
+                    variant={event.severity === "critical" ? "danger" : "outline"}
+                    size="sm"
+                    onClick={() =>
+                      confirmEvent(event.id, event.personName ?? event.location)
+                    }
+                  >
+                    <BellRing className="size-3.5" /> 담당자 확인
+                  </Button>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

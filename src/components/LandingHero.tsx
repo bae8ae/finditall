@@ -1,29 +1,39 @@
 "use client";
 
 import {
-  StickyNote, Wifi, Smartphone, BatteryCharging, Layers,
-  Boxes, MapPin, ArrowRight, Home, Building2, Check, Sparkles,
+  ArrowRight,
+  BatteryCharging,
+  BellRing,
+  Building2,
+  Check,
+  DoorOpen,
+  Home,
+  KeyRound,
+  LockKeyhole,
+  Pill,
+  Radar,
+  ShieldCheck,
+  Sparkles,
+  UserRoundCheck,
+  WalletCards,
+  Waves,
+  Wifi,
 } from "lucide-react";
 import type { Mode } from "./Header";
 import { Logo } from "./Header";
 
-function Step({
-  n,
+function FeatureCard({
   icon,
   title,
   desc,
 }: {
-  n: number;
   icon: React.ReactNode;
   title: string;
   desc: string;
 }) {
   return (
-    <div className="glass relative rounded-2xl border border-border-soft p-6">
-      <span className="absolute right-5 top-4 text-5xl font-black text-surface-2">
-        {n}
-      </span>
-      <div className="mb-4 grid size-12 place-items-center rounded-xl bg-gradient-to-br from-pink/20 to-mint/15 text-mint">
+    <div className="glass rounded-2xl border border-border-soft p-6">
+      <div className="mb-4 grid size-12 place-items-center rounded-xl bg-gradient-to-br from-pink/18 to-mint/12 text-mint">
         {icon}
       </div>
       <h3 className="text-base font-bold text-text">{title}</h3>
@@ -32,7 +42,7 @@ function Step({
   );
 }
 
-function Diff({ title, desc }: { title: string; desc: string }) {
+function TrustItem({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="flex gap-3 rounded-xl border border-border-soft bg-surface/40 p-4">
       <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-mint/15 text-mint">
@@ -40,7 +50,7 @@ function Diff({ title, desc }: { title: string; desc: string }) {
       </span>
       <div>
         <p className="text-sm font-semibold text-text">{title}</p>
-        <p className="mt-0.5 text-xs text-muted">{desc}</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-muted">{desc}</p>
       </div>
     </div>
   );
@@ -49,25 +59,25 @@ function Diff({ title, desc }: { title: string; desc: string }) {
 export function LandingHero({ setMode }: { setMode: (m: Mode) => void }) {
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-      {/* HERO */}
-      <section className="relative overflow-hidden pt-14 pb-12 text-center sm:pt-20">
-        <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface/50 px-4 py-1.5 text-xs font-medium text-muted fit-fade">
-          <Sparkles className="size-3.5 text-mint" />
-          배터리 없는 스티커 태그 · 허브 기반 실내 위치 추정
+      <section className="relative overflow-hidden pb-14 pt-14 text-center sm:pt-20">
+        <div className="fit-fade mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface/50 px-4 py-1.5 text-xs font-medium text-muted">
+          <Sparkles className="size-3.5 text-pink-soft" />
+          Camera-free Care Hub · Wi-Fi CSI · Batteryless RFID
         </div>
         <h1 className="fit-fade mx-auto max-w-4xl text-4xl font-extrabold leading-[1.12] tracking-tight sm:text-6xl">
-          배터리 없는 스티커 태그로,
-          <br />
-          <span className="gradient-text">필요한 물건을 언제나 찾다.</span>
+          보지 않고도,
+          <br className="sm:hidden" />{" "}
+          <span className="gradient-text">곁에서 봅니다.</span>
         </h1>
-        <p className="fit-fade mx-auto mt-5 max-w-2xl text-base text-muted sm:text-lg">
-          FindIt Hub가 태그의 고유 ID를 감지하고, 앱이 위치를 안내합니다.
-          <br className="hidden sm:block" />
-          정확한 GPS가 아니라 <span className="text-text">구역 단위 탐색</span>으로
-          많은 물건을 얇고 저렴하게 관리하세요.
+        <p className="fit-fade mx-auto mt-5 max-w-3xl text-base leading-relaxed text-muted sm:text-lg">
+          BOMI는 카메라 없이 Wi-Fi CSI 신호와 배터리 없는 RFID 태그를 이용해,
+          혼자 있는 시간의 작은 변화를 감지하고 보호자에게 필요한 순간만 알려주는
+          생활 안전 돌봄 허브입니다.
+        </p>
+        <p className="mt-3 text-sm font-medium text-pink-soft">
+          By your side, without watching.
         </p>
 
-        {/* mode select cards */}
         <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
           <button
             onClick={() => setMode("personal")}
@@ -76,12 +86,14 @@ export function LandingHero({ setMode }: { setMode: (m: Mode) => void }) {
             <div className="mb-4 grid size-12 place-items-center rounded-xl bg-pink/15 text-pink-soft">
               <Home className="size-6" />
             </div>
-            <h3 className="text-lg font-bold text-text">개인 사용자</h3>
-            <p className="mt-1 text-sm text-muted">
-              집 안에서 지갑·열쇠·리모컨·안경·스마트폰을 빠르게 찾기
+            <h3 className="text-lg font-bold text-text">BOMI Family</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              혼자 사는 부모님의 활동, 복약, 외출·귀가와 필수 물품을 한눈에
+              확인합니다.
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-pink-soft">
-              개인용 시작하기 <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+              BOMI Family 데모 보기
+              <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </span>
           </button>
 
@@ -92,118 +104,237 @@ export function LandingHero({ setMode }: { setMode: (m: Mode) => void }) {
             <div className="mb-4 grid size-12 place-items-center rounded-xl bg-mint/15 text-mint">
               <Building2 className="size-6" />
             </div>
-            <h3 className="text-lg font-bold text-text">기관 사용자</h3>
-            <p className="mt-1 text-sm text-muted">
-              병원·연구실·호텔·학교·공유오피스의 공용 자산 통합 관리
+            <h3 className="text-lg font-bold text-text">BOMI Facility</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              복지관·요양시설·방문돌봄 기관의 생활 안전 이벤트를 영상 없이 통합
+              관리합니다.
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-mint">
-              기관용 데모 보기 <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+              BOMI Facility 데모 보기
+              <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </span>
           </button>
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
       <section className="pt-10">
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-mint">
-          How it works
+          Everyday risks
         </p>
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
-          작동 방식 3단계
+          혼자 있는 시간, 놓치기 쉬운 변화
         </h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <Step
-            n={1}
-            icon={<StickyNote className="size-6" />}
-            title="물건에 스티커 태그 부착"
-            desc="초박형·배터리 없는 스티커 태그를 물건에 붙입니다. 각 태그는 고유 ID를 가집니다."
+          <FeatureCard
+            icon={<Pill className="size-6" />}
+            title="복약 누락"
+            desc="약통을 찾지 못하거나 복용 시간이 흔들릴 수 있습니다."
           />
-          <Step
-            n={2}
-            icon={<Wifi className="size-6" />}
-            title="공간에 FindIt Hub 설치"
-            desc="거실·현관·병동·연구실 등에 허브를 설치하면 주변 태그를 자동으로 감지합니다."
+          <FeatureCard
+            icon={<UserRoundCheck className="size-6" />}
+            title="장시간 무반응"
+            desc="혼자 있는 집에서 오랜 시간 움직임이 없어도 보호자는 늦게 알 수 있습니다."
           />
-          <Step
-            n={3}
-            icon={<Smartphone className="size-6" />}
-            title="앱에서 위치와 신호 강도 확인"
-            desc="가장 강하게 감지된 허브를 기준으로 구역 단위 위치와 근접 신호를 보여줍니다."
+          <FeatureCard
+            icon={<KeyRound className="size-6" />}
+            title="필수 물품 분실"
+            desc="열쇠, 지갑, 약통, 외출가방처럼 꼭 필요한 물건의 위치를 놓칠 수 있습니다."
           />
         </div>
       </section>
 
-      {/* DIFFERENTIATORS */}
+      <section className="mt-16">
+        <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-pink-soft">
+          BOMI Care + BOMI Find
+        </p>
+        <h2 className="text-center text-2xl font-bold sm:text-3xl">
+          하나의 허브, 두 개의 감지 방식
+        </h2>
+        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <div className="glass rounded-3xl border border-mint/25 p-6 sm:p-8">
+            <div className="flex items-center gap-3">
+              <span className="grid size-12 place-items-center rounded-2xl bg-mint/12 text-mint">
+                <Waves className="size-6" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-mint">
+                  Wi-Fi CSI
+                </p>
+                <h3 className="text-xl font-bold text-text">BOMI Care</h3>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-muted">
+              영상 촬영이나 웨어러블 착용 없이 Wi-Fi 전파의 변화를 해석해 사람의
+              생활 변화를 감지합니다.
+            </p>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              {[
+                "움직임 감지",
+                "장시간 무반응 알림",
+                "낙상 의심 패턴",
+                "실험적 호흡 추세",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-2 rounded-xl bg-surface-2/70 px-3 py-2.5 text-sm text-text"
+                >
+                  <Check className="size-4 text-mint" /> {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass rounded-3xl border border-pink/25 p-6 sm:p-8">
+            <div className="flex items-center gap-3">
+              <span className="grid size-12 place-items-center rounded-2xl bg-pink/12 text-pink-soft">
+                <Radar className="size-6" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-pink-soft">
+                  Batteryless RFID
+                </p>
+                <h3 className="text-xl font-bold text-text">BOMI Find</h3>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-muted">
+              배터리 없는 RFID 태그로 필수 물품의 구역 단위 위치와 사용·이동
+              변화를 감지합니다.
+            </p>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              {[
+                { icon: Pill, label: "약통" },
+                { icon: KeyRound, label: "열쇠" },
+                { icon: DoorOpen, label: "외출가방" },
+                { icon: WalletCards, label: "지갑 등" },
+              ].map(({ icon: ItemIcon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 rounded-xl bg-surface-2/70 px-3 py-2.5 text-sm text-text"
+                >
+                  <ItemIcon className="size-4 text-pink-soft" /> {label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="mt-16 grid items-center gap-8 rounded-3xl border border-border-soft bg-surface/30 p-6 sm:p-10 lg:grid-cols-2">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-pink-soft">
-            AirTag류와의 차별점
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-mint">
+            Privacy by design
           </p>
           <h2 className="text-2xl font-bold leading-snug sm:text-3xl">
-            AirTag가 비싼 물건 몇 개를 추적한다면,
+            영상 대신,
             <br />
-            <span className="gradient-text">FindIt All은 많은 물건을 얇고 저렴하게.</span>
+            <span className="gradient-text">필요한 이벤트만 전달합니다.</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            개별 GPS·배터리 태그 대신, 고유 ID 기반의 배터리 없는 스티커 태그와
-            허브 네트워크로 실내 자산을 구역 단위로 관리합니다.
+            홈카메라처럼 촬영하지 않고, raw 데이터를 그대로 노출하지 않습니다.
+            BOMI Hub가 생활 신호를 이벤트로 변환해 보호자에게 필요한 순간만
+            연결합니다.
+          </p>
+          <p className="mt-5 rounded-2xl border border-pink/20 bg-pink/7 p-4 text-sm font-semibold leading-relaxed text-text">
+            BOMI는 사용자를 감시하지 않습니다. 필요한 순간의 변화만 보호자에게
+            연결합니다.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Diff title="배터리 교체 없음" desc="배터리 없는 태그라 충전·교체가 필요 없습니다." />
-          <Diff title="얇은 스티커형 태그" desc="초박형 설계로 카드·리모컨·서류에도 부착." />
-          <Diff title="다수 물건 관리에 적합" desc="태그 수십~수백 개를 한 번에 관리합니다." />
-          <Diff title="허브 기반 실내 구역 탐색" desc="허브 신호 강도로 구역 단위 위치를 추정." />
+          <TrustItem
+            title="raw CSI 장기 저장 금지"
+            desc="원시 신호 대신 이벤트 중심으로 처리합니다."
+          />
+          <TrustItem
+            title="이벤트 변환 전송"
+            desc="활동·무반응·복약 등 필요한 정보만 전달합니다."
+          />
+          <TrustItem
+            title="암호화 통신"
+            desc="허브와 서비스 사이의 데이터를 보호합니다."
+          />
+          <TrustItem
+            title="보호자 권한 분리"
+            desc="가족과 기관 담당자의 접근 범위를 구분합니다."
+          />
+          <TrustItem
+            title="수집 목적 투명 안내"
+            desc="무엇을 왜 감지하는지 사용자에게 설명합니다."
+          />
+          <TrustItem
+            title="착용·충전 부담 없음"
+            desc="웨어러블 없이 일상 공간에서 동작합니다."
+          />
         </div>
       </section>
 
-      {/* value strip */}
       <section className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: BatteryCharging, t: "배터리 없는 태그", d: "충전·교체 불필요" },
-          { icon: Layers, t: "고유 ID 기반 구분", d: "물건별 정확한 식별" },
-          { icon: MapPin, t: "구역 단위 위치 추정", d: "허브 신호 강도 기반" },
-          { icon: Boxes, t: "개인·기관 모두", d: "물건 찾기 & 자산관리" },
-        ].map((v) => (
+          {
+            icon: ShieldCheck,
+            title: "카메라 없는 돌봄",
+            desc: "영상 촬영 없이 생활 변화 감지",
+          },
+          {
+            icon: BatteryCharging,
+            title: "배터리 없는 태그",
+            desc: "약통·열쇠·가방 사용 변화",
+          },
+          {
+            icon: BellRing,
+            title: "이벤트 중심 알림",
+            desc: "raw 데이터 대신 필요한 순간만",
+          },
+          {
+            icon: LockKeyhole,
+            title: "권한 기반 보호",
+            desc: "가족·기관 담당자 접근 분리",
+          },
+        ].map((value) => (
           <div
-            key={v.t}
+            key={value.title}
             className="glass flex items-center gap-3 rounded-2xl border border-border-soft p-4"
           >
             <span className="grid size-10 place-items-center rounded-xl bg-surface-2 text-mint">
-              <v.icon className="size-5" />
+              <value.icon className="size-5" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-text">{v.t}</p>
-              <p className="text-xs text-muted">{v.d}</p>
+              <p className="text-sm font-semibold text-text">{value.title}</p>
+              <p className="text-xs text-muted">{value.desc}</p>
             </div>
           </div>
         ))}
       </section>
 
-      {/* CTA */}
+      <section className="mt-12 rounded-2xl border border-border-soft bg-surface/25 p-5 text-sm leading-relaxed text-muted">
+        <Wifi className="mr-2 inline size-4 text-mint" />
+        CSI 기반 감지 방식은 향후 외출 중이나 수면 중 창문·문 열림처럼 실내 전파
+        환경이 갑자기 바뀌는 상황을 이상 이벤트로 감지하는 생활 안전 기능으로
+        확장될 수 있습니다. 전문 보안 서비스를 대체하지 않습니다.
+      </section>
+
       <section className="mt-16 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-pink/10 via-surface/40 to-mint/10 p-8 text-center sm:p-14">
         <div className="mx-auto mb-5 flex justify-center">
           <Logo />
         </div>
         <h2 className="text-2xl font-bold sm:text-3xl">
-          지금 FindIt All을 시작해보세요
+          카메라 없이 이어지는 돌봄을 만나보세요
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
-          본 화면은 프로토타입 데모입니다. 허브 감지·신호 강도·위치 추정·알림은
-          더미 데이터와 시뮬레이션으로 동작합니다.
+          본 화면은 BOMI Care와 BOMI Find의 프로토타입 데모입니다. 신호, 활동,
+          복약, 위치 변화 데이터는 시뮬레이션으로 동작합니다.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <button
             onClick={() => setMode("personal")}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-pink to-pink-soft px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-pink/20 transition hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-pink to-pink-soft px-6 py-3 text-sm font-semibold text-[#17150f] shadow-lg shadow-pink/20 transition hover:brightness-110"
           >
-            <Home className="size-4" /> 개인용 시작하기
+            <Home className="size-4" /> BOMI Family 데모
           </button>
           <button
             onClick={() => setMode("organization")}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-mint to-mint-soft px-6 py-3 text-sm font-semibold text-[#04221c] shadow-lg shadow-mint/20 transition hover:brightness-105"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-mint to-mint-soft px-6 py-3 text-sm font-semibold text-[#10130f] shadow-lg shadow-mint/20 transition hover:brightness-105"
           >
-            <Building2 className="size-4" /> 기관용 데모 보기
+            <Building2 className="size-4" /> BOMI Facility 데모
           </button>
         </div>
       </section>
@@ -211,7 +342,7 @@ export function LandingHero({ setMode }: { setMode: (m: Mode) => void }) {
       <footer className="mt-16 flex flex-col items-center gap-2 border-t border-border-soft pt-8 text-center">
         <Logo />
         <p className="text-xs text-muted">
-          FindIt All · 배터리 없는 스티커 태그 기반 실내 분실물·자산 관리 — 프로토타입 데모
+          BOMI · 카메라 없이 지켜주는 생활 안전 돌봄 허브 · 프로토타입 데모
         </p>
       </footer>
     </div>

@@ -5,9 +5,9 @@ import type { TagStatus, HubStatus } from "@/lib/types";
 
 const TAG_MAP: Record<TagStatus, { label: string; cls: string; dot: string }> = {
   normal: { label: "정상", cls: "bg-mint/12 text-mint border-mint/30", dot: "bg-mint" },
-  searching: { label: "탐색 중", cls: "bg-info/12 text-info border-info/30", dot: "bg-info" },
-  missing: { label: "미감지", cls: "bg-danger/12 text-danger border-danger/30", dot: "bg-danger" },
-  lowSignal: { label: "신호 약함", cls: "bg-warn/12 text-warn border-warn/30", dot: "bg-warn" },
+  searching: { label: "확인 중", cls: "bg-info/12 text-info border-info/30", dot: "bg-info" },
+  missing: { label: "장기 미감지", cls: "bg-danger/12 text-danger border-danger/30", dot: "bg-danger" },
+  lowSignal: { label: "확인 필요", cls: "bg-warn/12 text-warn border-warn/30", dot: "bg-warn" },
   archived: { label: "보관됨", cls: "bg-surface-2 text-muted border-border", dot: "bg-muted" },
 };
 

@@ -23,8 +23,8 @@ export function PersonalMap({ onFind }: { onFind: (t: Tag) => void }) {
   return (
     <div className="space-y-4">
       <SectionTitle
-        title="실내 위치 지도"
-        desc="허브 신호 강도 기반 구역 단위 위치 추정 (정확한 좌표 아님)"
+        title="복약·필수 물품 구역 맵"
+        desc="BOMI Hub 신호 기반 구역 단위 위치 변화 감지 (정확한 좌표 아님)"
         icon={<Map className="size-5" />}
         action={
           <Select
@@ -126,7 +126,7 @@ export function PersonalMap({ onFind }: { onFind: (t: Tag) => void }) {
             })}
           </div>
           <p className="mt-3 text-center text-[11px] text-muted">
-            하이라이트된 구역이 선택한 물건이 가장 강하게 감지되는 영역입니다.
+            하이라이트된 구역이 선택한 필수 물품이 가장 강하게 감지되는 영역입니다.
           </p>
         </Card>
 
@@ -150,14 +150,14 @@ export function PersonalMap({ onFind }: { onFind: (t: Tag) => void }) {
                 <Row label="마지막 감지" value={timeAgo(selected.lastDetectedAt, state.now)} />
               </div>
               <Button variant="primary" className="w-full" onClick={() => onFind(selected)}>
-                <Crosshair className="size-4" /> 찾기 모드로 이동
+                <Crosshair className="size-4" /> 위치 확인
               </Button>
               <p className="text-[11px] text-muted">
                 구역 단위 추정입니다. 해당 구역 내에서 허브 근처를 천천히 살펴보세요.
               </p>
             </>
           ) : (
-            <p className="py-8 text-center text-sm text-muted">물건을 선택하세요.</p>
+            <p className="py-8 text-center text-sm text-muted">필수 물품을 선택하세요.</p>
           )}
         </Card>
       </div>

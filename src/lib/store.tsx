@@ -124,7 +124,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const STORAGE_KEY = "findit-all-state-v1";
+const STORAGE_KEY = "bomi-care-state-v1";
 
 interface StoreApi {
   state: State;

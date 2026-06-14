@@ -35,10 +35,10 @@ const PERSONAL_TIPS = [
   "정확한 GPS가 아닌 구역 단위 추정이므로 주변을 함께 살펴보세요.",
 ];
 const ORG_TIPS = [
-  "해당 구역의 허브 반경 안에서 자산을 탐색하세요.",
+  "해당 구역의 BOMI Hub 연결 상태를 먼저 확인하세요.",
   "신호 강도가 높을수록 허브와 가까운 위치입니다.",
-  "지정 구역을 벗어난 자산은 반출/이탈 알림으로 확인하세요.",
-  "장기 미감지 자산은 마지막 감지 허브부터 확인하는 것이 빠릅니다.",
+  "이용자의 생활 안전 이벤트는 담당자 확인 절차와 함께 검토하세요.",
+  "장기 미감지는 마지막 활동 구역과 담당자 연락 기록을 확인하세요.",
 ];
 
 export function FindModeModal({
@@ -103,10 +103,10 @@ export function FindModeModal({
     addNotification({
       ownerType: variant,
       kind: "ok",
-      title: "찾음 처리",
-      body: `${tag!.name}을(를) 찾음 처리했습니다. (${tag!.lastDetectedZone})`,
+      title: "위치 확인 완료",
+      body: `${tag!.name}의 위치를 확인했습니다. (${tag!.lastDetectedZone})`,
     });
-    toast({ kind: "success", title: "찾음 처리 완료", desc: tag!.name });
+    toast({ kind: "success", title: "위치 확인 완료", desc: tag!.name });
     onClose();
   }
 
@@ -115,10 +115,10 @@ export function FindModeModal({
     addNotification({
       ownerType: variant,
       kind: "danger",
-      title: variant === "personal" ? "분실 신고" : "분실 상태 변경",
-      body: `${tag!.name}을(를) 미감지/분실 상태로 변경했습니다.`,
+      title: variant === "personal" ? "보호자 확인 요청" : "담당자 확인 요청",
+      body: `${tag!.name}의 장기 미감지 상태 확인을 요청했습니다.`,
     });
-    toast({ kind: "warn", title: "분실 상태로 변경됨", desc: tag!.name });
+    toast({ kind: "warn", title: "확인 요청 전송", desc: tag!.name });
     onClose();
   }
 
@@ -127,7 +127,7 @@ export function FindModeModal({
       ownerType: "organization",
       kind: "info",
       title: "담당자 알림 전송",
-      body: `${tag!.assignee ?? "담당자"}님에게 ${tag!.name} 탐색 요청을 보냈습니다.`,
+      body: `${tag!.assignee ?? "담당자"}님에게 ${tag!.name} 확인 요청을 보냈습니다.`,
     });
     toast({
       kind: "info",
@@ -141,8 +141,8 @@ export function FindModeModal({
       open={open}
       onClose={onClose}
       size="lg"
-      title={variant === "personal" ? "찾기 모드" : "자산 탐색 모드"}
-      desc="허브 신호 강도 기반 근접 탐색 · 구역 단위 위치 추정"
+      title={variant === "personal" ? "필수 물품 위치 확인" : "이용자 신호 확인"}
+      desc="BOMI Hub 신호 기반 구역 단위 감지 · 정확한 좌표 추적 아님"
     >
       <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
         {/* left: gauge */}
@@ -209,7 +209,7 @@ export function FindModeModal({
 
           <div className="rounded-xl border border-mint/20 bg-mint/5 p-3">
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-mint">
-              <Lightbulb className="size-3.5" /> 주변 탐색 팁
+              <Lightbulb className="size-3.5" /> 주변 확인 안내
             </p>
             <ul className="space-y-1 text-xs text-muted">
               {tips.map((t) => (
@@ -240,10 +240,10 @@ export function FindModeModal({
         )}
         <Button variant="danger" onClick={handleMissing}>
           <AlertTriangle className="size-4" />
-          {variant === "personal" ? "분실 신고" : "분실 상태로 변경"}
+          {variant === "personal" ? "보호자 확인 요청" : "담당자 확인 요청"}
         </Button>
         <Button variant="mint" onClick={handleFound}>
-          <CheckCircle2 className="size-4" /> 찾음 처리
+          <CheckCircle2 className="size-4" /> 위치 확인 완료
         </Button>
       </div>
     </Modal>

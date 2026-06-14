@@ -98,3 +98,47 @@ export interface OrgMember {
   zones: string;
   status: "active" | "invited" | "disabled";
 }
+
+export type PresenceStatus = "present" | "away" | "inactive" | "unknown";
+
+export type MedicationStatus =
+  | "confirmed"
+  | "unconfirmed"
+  | "scheduled"
+  | "not-applicable";
+
+export type CareEventType =
+  | "활동 감지"
+  | "장시간 무반응"
+  | "복약 확인"
+  | "복약 미확인"
+  | "낙상 의심"
+  | "외출 감지"
+  | "귀가 감지"
+  | "보호자 확인 요청"
+  | "허브 오프라인"
+  | "담당자 확인 완료";
+
+export interface CareEvent {
+  id: string;
+  ownerType: OwnerType;
+  personName?: string;
+  type: CareEventType;
+  location: string;
+  severity: "info" | "normal" | "warning" | "critical";
+  guardianNotified: boolean;
+  status: "new" | "checking" | "confirmed" | "resolved";
+  timestamp: string;
+  description: string;
+}
+
+export interface VitalSignal {
+  heartRate: number;
+  respiration: number;
+  confidence: number;
+  motion: number;
+  rssi: number;
+  variance: number;
+  persons: number;
+  presence: PresenceStatus;
+}

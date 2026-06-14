@@ -1,182 +1,176 @@
 "use client";
 
-import { useMemo } from "react";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, BarChart, Bar, PieChart, Pie, Cell,
-} from "recharts";
-import {
-  Boxes, Radar, AlertTriangle, Wifi, Search, TrendingDown,
+  AlertTriangle,
+  BellRing,
+  Building2,
+  Clock3,
+  Pill,
+  Router,
+  UserCheck,
+  Users,
 } from "lucide-react";
-import { Card, Stat, SectionTitle } from "../ui/primitives";
-import { StatusBadge } from "../StatusBadge";
-import { useTags, useHubs, useZones, useStore } from "@/lib/store";
+import { Card, SectionTitle, Stat } from "../ui/primitives";
+import { useHubs, useStore, useTags } from "@/lib/store";
+import { organizationCareEvents } from "@/lib/mock-data";
+import { cn, formatTime } from "@/lib/utils";
 
-const WEEK = [
-  { d: "월", n: 142 },
-  { d: "화", n: 168 },
-  { d: "수", n: 151 },
-  { d: "목", n: 189 },
-  { d: "금", n: 204 },
-  { d: "토", n: 96 },
-  { d: "일", n: 88 },
-];
-
-const PIE_COLORS = ["#f0509e", "#2fe0c0", "#60a5fa", "#fbbf24", "#a78bfa", "#fb6a72"];
-
-const tooltipStyle = {
-  background: "#111827",
-  border: "1px solid #233045",
-  borderRadius: 12,
-  fontSize: 12,
-  color: "#e7ecf6",
+const SEVERITY = {
+  info: "bg-info",
+  normal: "bg-mint",
+  warning: "bg-warn",
+  critical: "bg-danger",
 };
 
 export function OrganizationDashboard() {
-  const tags = useTags("organization");
+  const users = useTags("organization");
   const hubs = useHubs("organization");
-  const zones = useZones("organization");
   const { state } = useStore();
-
-  const detecting = tags.filter(
-    (t) => t.signalStrength > 0 && t.status !== "missing",
+  const events = organizationCareEvents(state.now);
+  const onlineHubs = hubs.filter((hub) => hub.status === "online").length;
+  const needsReview = events.filter(
+    (event) => event.status === "new" || event.status === "checking",
   ).length;
-  const missing = tags.filter(
-    (t) => t.status === "missing" || t.status === "lowSignal",
+  const medicationPending = events.filter(
+    (event) => event.type === "복약 미확인",
   ).length;
-  const onlineHubs = hubs.filter((h) => h.status === "online").length;
-
-  const catData = useMemo(() => {
-    const m = new Map<string, number>();
-    tags.forEach((t) => m.set(t.category, (m.get(t.category) ?? 0) + 1));
-    return [...m.entries()]
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
-  }, [tags]);
-
-  const zoneData = useMemo(
-    () =>
-      zones
-        .map((z) => ({
-          name: z.name.replace(/^\d+층\s*/, ""),
-          자산: tags.filter((t) => t.homeZoneId === z.id).length,
-        }))
-        .filter((z) => z.자산 > 0),
-    [zones, tags],
-  );
-
-  const alerts = tags.filter(
-    (t) => t.status === "missing" || t.status === "searching" || t.status === "lowSignal",
-  );
+  const inactivity = events.filter(
+    (event) => event.type === "장시간 무반응",
+  ).length;
 
   return (
     <div className="space-y-5">
       <SectionTitle
-        title="기관 자산 대시보드"
-        desc="실내 공용 자산 통합 관제 · 허브 기반 구역 단위 추정"
-        icon={<Boxes className="size-5" />}
+        title="BOMI Facility 대시보드"
+        desc="여러 이용자의 생활 안전 이벤트를 영상 없이 통합 관리합니다."
+        icon={<Building2 className="size-5" />}
       />
 
-      {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <Stat label="전체 자산" value={tags.length} icon={<Boxes className="size-5" />} tone="mint" />
-        <Stat label="감지 중" value={detecting} icon={<Radar className="size-5" />} tone="mint" />
-        <Stat label="분실 의심" value={missing} icon={<AlertTriangle className="size-5" />} tone="danger" />
-        <Stat label="온라인 허브" value={`${onlineHubs}/${hubs.length}`} icon={<Wifi className="size-5" />} tone="default" />
-        <Stat label="오늘 탐색 요청" value={37} icon={<Search className="size-5" />} tone="pink" />
-        <Stat label="검색시간 감소" value="62%" icon={<TrendingDown className="size-5" />} tone="mint" sub="평균 대비" />
+        <Stat
+          label="등록 이용자 수"
+          value={users.length}
+          icon={<Users className="size-5" />}
+          tone="mint"
+          sub="데모 이용자"
+        />
+        <Stat
+          label="오늘 확인 필요 이벤트"
+          value={`${needsReview}건`}
+          icon={<BellRing className="size-5" />}
+          tone="danger"
+          sub="담당자 확인 대기"
+        />
+        <Stat
+          label="온라인 허브"
+          value={`${onlineHubs}/${hubs.length}`}
+          icon={<Router className="size-5" />}
+          tone="mint"
+          sub="구역 감지 운영 중"
+        />
+        <Stat
+          label="복약 미확인"
+          value={`${medicationPending}건`}
+          icon={<Pill className="size-5" />}
+          tone="warn"
+          sub="오늘 복약 일정"
+        />
+        <Stat
+          label="장시간 무반응"
+          value={`${inactivity}건`}
+          icon={<Clock3 className="size-5" />}
+          tone="danger"
+          sub="기준 시간 초과"
+        />
+        <Stat
+          label="기관 담당자 수"
+          value={state.members.length}
+          icon={<UserCheck className="size-5" />}
+          tone="default"
+          sub="권한별 알림 분배"
+        />
       </div>
 
-      {/* charts */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <p className="mb-4 text-sm font-semibold text-text">최근 7일 감지 로그 수</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={WEEK} margin={{ left: -20, right: 8 }}>
-              <defs>
-                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2fe0c0" stopOpacity={0.5} />
-                  <stop offset="100%" stopColor="#2fe0c0" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1b2740" />
-              <XAxis dataKey="d" stroke="#8a99b8" fontSize={12} tickLine={false} />
-              <YAxis stroke="#8a99b8" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#161f33" }} />
-              <Area type="monotone" dataKey="n" stroke="#2fe0c0" strokeWidth={2} fill="url(#g1)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </Card>
-
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <Card>
-          <p className="mb-4 text-sm font-semibold text-text">카테고리별 분포</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={catData}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={48}
-                outerRadius={78}
-                paddingAngle={3}
-              >
-                {catData.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} stroke="none" />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={tooltipStyle} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-            {catData.map((c, i) => (
-              <span key={c.name} className="flex items-center gap-1.5 text-[11px] text-muted">
-                <span className="size-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                {c.name}
-              </span>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <p className="mb-4 text-sm font-semibold text-text">구역별 자산 밀집도</p>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={zoneData} margin={{ left: -20, right: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1b2740" vertical={false} />
-              <XAxis dataKey="name" stroke="#8a99b8" fontSize={11} tickLine={false} interval={0} />
-              <YAxis stroke="#8a99b8" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#161f33" }} />
-              <Bar dataKey="자산" fill="#f0509e" radius={[6, 6, 0, 0]} barSize={28} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card>
-          <p className="mb-3 text-sm font-semibold text-text">주의 자산</p>
-          <div className="space-y-2">
-            {alerts.slice(0, 6).map((t) => (
+          <p className="mb-1 text-sm font-semibold text-text">
+            실시간 이벤트 관제
+          </p>
+          <p className="mb-4 text-xs text-muted">
+            확인이 필요한 이벤트부터 우선 표시합니다.
+          </p>
+          <div className="space-y-2.5">
+            {events.slice(0, 6).map((event) => (
               <div
-                key={t.id}
-                className="flex items-center justify-between rounded-lg border border-border-soft bg-surface/40 px-3 py-2"
+                key={event.id}
+                className="flex items-start gap-3 rounded-xl border border-border-soft bg-surface/35 p-3"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-text">{t.name}</p>
-                  <p className="text-[11px] text-muted">{t.lastDetectedZone}</p>
+                <span
+                  className={cn(
+                    "mt-1.5 size-2.5 shrink-0 rounded-full",
+                    SEVERITY[event.severity],
+                    (event.status === "new" || event.status === "checking") &&
+                      "fit-pulse",
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="text-sm font-semibold text-text">
+                      {event.personName ?? event.location}
+                    </p>
+                    <span className="text-xs text-pink-soft">{event.type}</span>
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted">
+                    {event.description} · {event.location}
+                  </p>
                 </div>
-                <StatusBadge status={t.status} />
+                <span className="shrink-0 text-[11px] text-muted">
+                  {formatTime(event.timestamp)}
+                </span>
               </div>
             ))}
-            {alerts.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted">주의 자산이 없습니다.</p>
-            )}
           </div>
         </Card>
+
+        <div className="space-y-4">
+          <Card>
+            <p className="mb-4 text-sm font-semibold text-text">
+              오늘 이벤트 구성
+            </p>
+            <div className="space-y-3">
+              {[
+                { label: "활동·귀가 확인", value: 68, count: "32건", color: "bg-mint" },
+                { label: "복약 확인 필요", value: 42, count: "4건", color: "bg-warn" },
+                { label: "무반응·확인 요청", value: 28, count: "2건", color: "bg-danger" },
+                { label: "허브 상태", value: 14, count: "1건", color: "bg-info" },
+              ].map((item) => (
+                <div key={item.label}>
+                  <div className="mb-1 flex justify-between text-xs">
+                    <span className="text-muted">{item.label}</span>
+                    <span className="font-medium text-text">{item.count}</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-bg-2">
+                    <div
+                      className={`h-full rounded-full ${item.color}`}
+                      style={{ width: `${item.value}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="border-warn/25 bg-warn/5">
+            <p className="flex items-center gap-2 text-sm font-semibold text-text">
+              <AlertTriangle className="size-4 text-warn" /> 운영 확인
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-muted">
+              3층 생활실 허브가 오프라인입니다. 담당자에게 네트워크와 전원 확인
+              요청이 배정되었습니다.
+            </p>
+          </Card>
+        </div>
       </div>
-      <p className="text-center text-[11px] text-muted">
-        모든 수치는 프로토타입 더미 데이터 기반입니다 · 마지막 동기화 {new Date(state.now).getHours()}시 기준
-      </p>
     </div>
   );
 }

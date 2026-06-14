@@ -10,7 +10,7 @@ import { useToast } from "../ui/toast";
 import { timeAgo } from "@/lib/utils";
 import type { Tag } from "@/lib/types";
 
-const DEMO_CODE = "FIND-7788";
+const DEMO_CODE = "BOMI-7788";
 
 export function GuestFindModal({
   open,
@@ -22,9 +22,8 @@ export function GuestFindModal({
   const tags = useTags("personal");
   const { state } = useStore();
   const toast = useToast();
-  // only owner-allowed items are guest-findable (demo: phone + wallet)
   const allowed = tags.filter((t) =>
-    ["스마트폰", "지갑", "자동차 열쇠"].includes(t.name),
+    ["휴대폰", "지갑", "열쇠"].includes(t.name),
   );
 
   const [step, setStep] = useState<"code" | "select" | "result">("code");
@@ -55,15 +54,15 @@ export function GuestFindModal({
     <Modal
       open={open}
       onClose={close}
-      title="Guest Find"
-      desc="소유자가 허용한 물건만 임시로 탐색할 수 있습니다."
+      title="가족 임시 위치 확인"
+      desc="보호자가 허용한 필수 물품만 임시로 확인할 수 있습니다."
     >
       {/* privacy banner */}
       <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-mint/25 bg-mint/5 p-3">
         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-mint" />
         <p className="text-xs text-muted">
-          Guest Find는 소유자가 허용한 물건만 임시로 탐색할 수 있습니다. 위치
-          정보는 탐색 세션 동안에만 표시되며 저장되지 않습니다.
+          가족 임시 위치 확인은 보호자가 허용한 필수 물품만 제공합니다. 위치
+          정보는 확인 세션 동안에만 표시되며 저장되지 않습니다.
         </p>
       </div>
 
@@ -73,26 +72,26 @@ export function GuestFindModal({
             <KeyRound className="size-7" />
           </div>
           <p className="text-sm text-text">
-            내 기기가 없어졌나요? 가족·룸메이트의 기기에서 임시 접근 코드로
-            탐색을 시작하세요.
+            보호자 기기에서 발급한 임시 접근 코드로 필수 물품의 마지막 감지
+            구역을 확인하세요.
           </p>
           <Field label="임시 접근 코드" hint={`데모 코드: ${DEMO_CODE}`}>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="FIND-XXXX"
+              placeholder="BOMI-XXXX"
               onKeyDown={(e) => e.key === "Enter" && verify()}
             />
           </Field>
           <Button variant="primary" className="w-full" onClick={verify}>
-            <Users className="size-4" /> 게스트 찾기 시작
+            <Users className="size-4" /> 임시 위치 확인
           </Button>
         </div>
       )}
 
       {step === "select" && (
         <div className="space-y-3">
-          <p className="text-sm text-muted">탐색할 기기를 선택하세요.</p>
+          <p className="text-sm text-muted">확인할 필수 물품을 선택하세요.</p>
           {allowed.map((t) => (
             <button
               key={t.id}
@@ -107,7 +106,7 @@ export function GuestFindModal({
               </span>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-text">{t.name}</p>
-                <p className="text-xs text-muted">소유자 허용됨 · 임시 탐색 가능</p>
+                <p className="text-xs text-muted">보호자 허용됨 · 임시 확인 가능</p>
               </div>
               <Crosshair className="size-4 text-mint" />
             </button>
@@ -147,7 +146,7 @@ export function GuestFindModal({
             </div>
           </div>
           <p className="text-[11px] text-muted">
-            ※ 구역 단위 위치 추정입니다. 탐색 세션 종료 시 접근 권한은 자동
+            ※ 구역 단위 위치 감지입니다. 확인 세션 종료 시 접근 권한은 자동
             만료됩니다.
           </p>
         </div>

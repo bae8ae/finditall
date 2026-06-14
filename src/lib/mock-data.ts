@@ -1,194 +1,205 @@
 import type {
-  Tag,
-  Hub,
-  Zone,
-  DetectionLog,
   AppNotification,
+  CareEvent,
+  DetectionLog,
+  Hub,
   OrgMember,
+  Tag,
+  Zone,
 } from "./types";
 
 const iso = (now: number, minutesAgo: number) =>
   new Date(now - minutesAgo * 60000).toISOString();
 
-/* ----------------------------- ZONES ----------------------------- */
-
 export function personalZones(): Zone[] {
   return [
-    { id: "pz-entry", name: "현관", type: "home", floor: "1F", description: "출입구 · 신발장", hubIds: ["ph-entry"], ownerType: "personal", col: 0, row: 1, w: 1, h: 1 },
-    { id: "pz-living", name: "거실", type: "home", floor: "1F", description: "소파 · TV 주변", hubIds: ["ph-living"], ownerType: "personal", col: 1, row: 0, w: 2, h: 2 },
-    { id: "pz-kitchen", name: "주방", type: "home", floor: "1F", description: "식탁 · 조리대", hubIds: [], ownerType: "personal", col: 3, row: 0, w: 1, h: 1 },
-    { id: "pz-bed", name: "침실", type: "home", floor: "1F", description: "침대 · 협탁", hubIds: ["ph-bed"], ownerType: "personal", col: 0, row: 0, w: 1, h: 1 },
-    { id: "pz-study", name: "서재", type: "home", floor: "1F", description: "책상 · 책장", hubIds: ["ph-study"], ownerType: "personal", col: 3, row: 1, w: 1, h: 1 },
+    { id: "pz-entry", name: "현관", type: "home", floor: "1F", description: "외출·귀가와 필수 물품 감지", hubIds: ["ph-entry"], ownerType: "personal", col: 0, row: 1, w: 1, h: 1 },
+    { id: "pz-living", name: "거실", type: "home", floor: "1F", description: "주요 생활 활동 감지", hubIds: ["ph-living"], ownerType: "personal", col: 1, row: 0, w: 2, h: 2 },
+    { id: "pz-kitchen", name: "주방", type: "home", floor: "1F", description: "식사·복약 생활 변화", hubIds: ["ph-kitchen"], ownerType: "personal", col: 3, row: 0, w: 1, h: 1 },
+    { id: "pz-bed", name: "침실", type: "home", floor: "1F", description: "수면·무반응 변화 감지", hubIds: ["ph-bed"], ownerType: "personal", col: 0, row: 0, w: 1, h: 1 },
+    { id: "pz-care", name: "복약함", type: "home", floor: "1F", description: "약통 사용과 위치 변화", hubIds: [], ownerType: "personal", col: 3, row: 1, w: 1, h: 1 },
   ];
 }
 
 export function orgZones(): Zone[] {
   return [
-    { id: "oz-lobby", name: "1층 로비", type: "hospital", floor: "1F", description: "메인 출입 · 안내데스크", hubIds: ["oh-lobby"], ownerType: "organization", col: 0, row: 0, w: 2, h: 1 },
-    { id: "oz-ward", name: "2층 병동", type: "hospital", floor: "2F", description: "입원 병동 · 간호스테이션", hubIds: ["oh-ward-a", "oh-ward-b"], ownerType: "organization", col: 2, row: 0, w: 2, h: 1 },
-    { id: "oz-exam", name: "3층 검사실", type: "hospital", floor: "3F", description: "영상 · 진단 장비실", hubIds: ["oh-exam"], ownerType: "organization", col: 0, row: 1, w: 1, h: 1 },
-    { id: "oz-labA", name: "연구실 A", type: "lab", floor: "3F", description: "공용 실험 장비", hubIds: ["oh-labA"], ownerType: "organization", col: 1, row: 1, w: 1, h: 1 },
-    { id: "oz-labB", name: "연구실 B", type: "lab", floor: "3F", description: "시약 · 정밀 키트", hubIds: ["oh-labB"], ownerType: "organization", col: 2, row: 1, w: 1, h: 1 },
-    { id: "oz-storage", name: "장비 보관실", type: "office", floor: "B1", description: "공용 자산 보관", hubIds: ["oh-storage"], ownerType: "organization", col: 3, row: 1, w: 1, h: 1 },
-    { id: "oz-meeting", name: "회의실", type: "office", floor: "1F", description: "대회의실 · 비품", hubIds: ["oh-meeting"], ownerType: "organization", col: 0, row: 2, w: 2, h: 1 },
-    { id: "oz-warehouse", name: "창고", type: "office", floor: "B1", description: "행사 · 예비 자산", hubIds: [], ownerType: "organization", col: 2, row: 2, w: 2, h: 1 },
+    { id: "oz-entry", name: "1층 현관", type: "hospital", floor: "1F", description: "외출·귀가 감지", hubIds: ["oh-entry"], ownerType: "organization", col: 0, row: 0, w: 2, h: 1 },
+    { id: "oz-control", name: "1층 관제실", type: "office", floor: "1F", description: "담당자 이벤트 관제", hubIds: ["oh-control"], ownerType: "organization", col: 2, row: 0, w: 2, h: 1 },
+    { id: "oz-living2", name: "2층 생활실", type: "hospital", floor: "2F", description: "생활 활동·무반응 감지", hubIds: ["oh-living2-a", "oh-living2-b"], ownerType: "organization", col: 0, row: 1, w: 2, h: 1 },
+    { id: "oz-med", name: "2층 복약함", type: "hospital", floor: "2F", description: "이용자 복약 확인", hubIds: ["oh-med"], ownerType: "organization", col: 2, row: 1, w: 1, h: 1 },
+    { id: "oz-living3", name: "3층 생활실", type: "hospital", floor: "3F", description: "생활 안전 이벤트 감지", hubIds: ["oh-living3"], ownerType: "organization", col: 0, row: 2, w: 2, h: 1 },
+    { id: "oz-rest", name: "3층 휴게실", type: "hospital", floor: "3F", description: "공용 생활 공간", hubIds: ["oh-rest"], ownerType: "organization", col: 2, row: 2, w: 2, h: 1 },
   ];
 }
 
-/* ----------------------------- HUBS ----------------------------- */
-
 export function personalHubs(now: number): Hub[] {
   return [
-    { id: "ph-living", name: "거실 허브", zone: "거실", zoneId: "pz-living", status: "online", connectedTagsCount: 4, coverageRadius: 8, lastSyncAt: iso(now, 1), ownerType: "personal" },
-    { id: "ph-bed", name: "침실 허브", zone: "침실", zoneId: "pz-bed", status: "online", connectedTagsCount: 2, coverageRadius: 6, lastSyncAt: iso(now, 3), ownerType: "personal" },
-    { id: "ph-entry", name: "현관 허브", zone: "현관", zoneId: "pz-entry", status: "online", connectedTagsCount: 2, coverageRadius: 5, lastSyncAt: iso(now, 2), ownerType: "personal" },
-    { id: "ph-study", name: "서재 허브", zone: "서재", zoneId: "pz-study", status: "offline", connectedTagsCount: 0, coverageRadius: 6, lastSyncAt: iso(now, 142), ownerType: "personal" },
+    { id: "ph-living", name: "거실 허브", zone: "거실", zoneId: "pz-living", status: "online", connectedTagsCount: 3, coverageRadius: 8, lastSyncAt: iso(now, 1), ownerType: "personal" },
+    { id: "ph-bed", name: "침실 허브", zone: "침실", zoneId: "pz-bed", status: "online", connectedTagsCount: 1, coverageRadius: 6, lastSyncAt: iso(now, 3), ownerType: "personal" },
+    { id: "ph-entry", name: "현관 허브", zone: "현관", zoneId: "pz-entry", status: "online", connectedTagsCount: 3, coverageRadius: 5, lastSyncAt: iso(now, 2), ownerType: "personal" },
+    { id: "ph-kitchen", name: "주방 허브", zone: "주방", zoneId: "pz-kitchen", status: "online", connectedTagsCount: 2, coverageRadius: 6, lastSyncAt: iso(now, 4), ownerType: "personal" },
   ];
 }
 
 export function orgHubs(now: number): Hub[] {
   return [
-    { id: "oh-lobby", name: "로비 허브", zone: "1층 로비", zoneId: "oz-lobby", status: "online", connectedTagsCount: 6, coverageRadius: 14, lastSyncAt: iso(now, 1), ownerType: "organization" },
-    { id: "oh-ward-a", name: "2층 병동 허브 A", zone: "2층 병동", zoneId: "oz-ward", status: "online", connectedTagsCount: 9, coverageRadius: 12, lastSyncAt: iso(now, 1), ownerType: "organization" },
-    { id: "oh-ward-b", name: "2층 병동 허브 B", zone: "2층 병동", zoneId: "oz-ward", status: "warning", connectedTagsCount: 5, coverageRadius: 12, lastSyncAt: iso(now, 17), ownerType: "organization" },
-    { id: "oh-exam", name: "검사실 허브", zone: "3층 검사실", zoneId: "oz-exam", status: "online", connectedTagsCount: 4, coverageRadius: 10, lastSyncAt: iso(now, 2), ownerType: "organization" },
-    { id: "oh-labA", name: "연구실 A 허브", zone: "연구실 A", zoneId: "oz-labA", status: "online", connectedTagsCount: 7, coverageRadius: 9, lastSyncAt: iso(now, 3), ownerType: "organization" },
-    { id: "oh-labB", name: "연구실 B 허브", zone: "연구실 B", zoneId: "oz-labB", status: "offline", connectedTagsCount: 0, coverageRadius: 9, lastSyncAt: iso(now, 220), ownerType: "organization" },
-    { id: "oh-storage", name: "보관실 허브", zone: "장비 보관실", zoneId: "oz-storage", status: "online", connectedTagsCount: 11, coverageRadius: 16, lastSyncAt: iso(now, 4), ownerType: "organization" },
-    { id: "oh-meeting", name: "회의실 허브", zone: "회의실", zoneId: "oz-meeting", status: "online", connectedTagsCount: 3, coverageRadius: 8, lastSyncAt: iso(now, 6), ownerType: "organization" },
+    { id: "oh-entry", name: "1층 현관 허브", zone: "1층 현관", zoneId: "oz-entry", status: "online", connectedTagsCount: 18, coverageRadius: 12, lastSyncAt: iso(now, 1), ownerType: "organization" },
+    { id: "oh-control", name: "관제실 허브", zone: "1층 관제실", zoneId: "oz-control", status: "online", connectedTagsCount: 4, coverageRadius: 8, lastSyncAt: iso(now, 2), ownerType: "organization" },
+    { id: "oh-living2-a", name: "2층 생활실 허브 A", zone: "2층 생활실", zoneId: "oz-living2", status: "online", connectedTagsCount: 31, coverageRadius: 12, lastSyncAt: iso(now, 1), ownerType: "organization" },
+    { id: "oh-living2-b", name: "2층 생활실 허브 B", zone: "2층 생활실", zoneId: "oz-living2", status: "warning", connectedTagsCount: 24, coverageRadius: 12, lastSyncAt: iso(now, 17), ownerType: "organization" },
+    { id: "oh-med", name: "2층 복약함 허브", zone: "2층 복약함", zoneId: "oz-med", status: "online", connectedTagsCount: 42, coverageRadius: 7, lastSyncAt: iso(now, 3), ownerType: "organization" },
+    { id: "oh-living3", name: "3층 생활실 허브", zone: "3층 생활실", zoneId: "oz-living3", status: "offline", connectedTagsCount: 0, coverageRadius: 12, lastSyncAt: iso(now, 65), ownerType: "organization" },
+    { id: "oh-rest", name: "3층 휴게실 허브", zone: "3층 휴게실", zoneId: "oz-rest", status: "online", connectedTagsCount: 21, coverageRadius: 10, lastSyncAt: iso(now, 5), ownerType: "organization" },
   ];
 }
 
-/* ----------------------------- TAGS ----------------------------- */
-
 export function personalTags(now: number): Tag[] {
   return [
-    { id: "pt-1", tagCode: "TAG-A001", name: "지갑", category: "지갑", ownerType: "personal", status: "normal", lastDetectedZone: "현관", lastDetectedHub: "현관 허브", signalStrength: 82, lastDetectedAt: iso(now, 4), batteryType: "Batteryless", icon: "wallet", notes: "갈색 가죽 반지갑", homeZoneId: "pz-entry" },
-    { id: "pt-2", tagCode: "TAG-A002", name: "자동차 열쇠", category: "열쇠", ownerType: "personal", status: "normal", lastDetectedZone: "현관", lastDetectedHub: "현관 허브", signalStrength: 74, lastDetectedAt: iso(now, 6), batteryType: "Batteryless", icon: "key", notes: "", homeZoneId: "pz-entry" },
-    { id: "pt-3", tagCode: "TAG-A003", name: "TV 리모컨", category: "리모컨", ownerType: "personal", status: "lowSignal", lastDetectedZone: "거실", lastDetectedHub: "거실 허브", signalStrength: 31, lastDetectedAt: iso(now, 38), batteryType: "Batteryless", icon: "tv", notes: "소파 쿠션 사이에 자주 들어감", homeZoneId: "pz-living" },
-    { id: "pt-4", tagCode: "TAG-A004", name: "안경 케이스", category: "안경 케이스", ownerType: "personal", status: "normal", lastDetectedZone: "침실", lastDetectedHub: "침실 허브", signalStrength: 68, lastDetectedAt: iso(now, 11), batteryType: "Batteryless", icon: "glasses", notes: "", homeZoneId: "pz-bed" },
-    { id: "pt-5", tagCode: "TAG-A005", name: "스마트폰", category: "스마트폰", ownerType: "personal", status: "normal", lastDetectedZone: "거실", lastDetectedHub: "거실 허브", signalStrength: 90, lastDetectedAt: iso(now, 1), batteryType: "Batteryless", icon: "smartphone", notes: "Guest Find 허용됨", homeZoneId: "pz-living" },
-    { id: "pt-6", tagCode: "TAG-A006", name: "사원증", category: "학생증/사원증", ownerType: "personal", status: "normal", lastDetectedZone: "서재", lastDetectedHub: "서재 허브", signalStrength: 55, lastDetectedAt: iso(now, 64), batteryType: "Batteryless", icon: "id-card", notes: "", homeZoneId: "pz-study" },
-    { id: "pt-7", tagCode: "TAG-A007", name: "약통", category: "약통", ownerType: "personal", status: "normal", lastDetectedZone: "주방", lastDetectedHub: "거실 허브", signalStrength: 47, lastDetectedAt: iso(now, 22), batteryType: "Batteryless", icon: "pill", notes: "아침 복용", homeZoneId: "pz-kitchen" },
-    { id: "pt-8", tagCode: "TAG-A008", name: "여권 서류함", category: "서류/파일", ownerType: "personal", status: "missing", lastDetectedZone: "서재", lastDetectedHub: "서재 허브", signalStrength: 0, lastDetectedAt: iso(now, 1680), batteryType: "Batteryless", icon: "folder", notes: "28시간 동안 미감지", homeZoneId: "pz-study" },
-    { id: "pt-9", tagCode: "TAG-A009", name: "보조 열쇠", category: "열쇠", ownerType: "personal", status: "normal", lastDetectedZone: "침실", lastDetectedHub: "침실 허브", signalStrength: 61, lastDetectedAt: iso(now, 18), batteryType: "Batteryless", icon: "key", notes: "", homeZoneId: "pz-bed" },
-    { id: "pt-10", tagCode: "TAG-A010", name: "에어팟 케이스", category: "기타", ownerType: "personal", status: "lowSignal", lastDetectedZone: "거실", lastDetectedHub: "거실 허브", signalStrength: 28, lastDetectedAt: iso(now, 52), batteryType: "Batteryless", icon: "headphones", notes: "", homeZoneId: "pz-living" },
+    { id: "pt-1", tagCode: "BOMI-M001", name: "저녁 약통", category: "약통", ownerType: "personal", status: "lowSignal", lastDetectedZone: "복약함", lastDetectedHub: "주방 허브", signalStrength: 42, lastDetectedAt: iso(now, 146), batteryType: "Batteryless", icon: "pill", notes: "오늘 저녁 복약 미확인", homeZoneId: "pz-care" },
+    { id: "pt-2", tagCode: "BOMI-M002", name: "아침 약통", category: "약통", ownerType: "personal", status: "normal", lastDetectedZone: "복약함", lastDetectedHub: "주방 허브", signalStrength: 78, lastDetectedAt: iso(now, 152), batteryType: "Batteryless", icon: "pill", notes: "07:58 복약 확인", homeZoneId: "pz-care" },
+    { id: "pt-3", tagCode: "BOMI-F003", name: "열쇠", category: "열쇠", ownerType: "personal", status: "normal", lastDetectedZone: "현관", lastDetectedHub: "현관 허브", signalStrength: 81, lastDetectedAt: iso(now, 12), batteryType: "Batteryless", icon: "key", notes: "현관 수납함", homeZoneId: "pz-entry" },
+    { id: "pt-4", tagCode: "BOMI-F004", name: "지갑", category: "지갑", ownerType: "personal", status: "normal", lastDetectedZone: "거실", lastDetectedHub: "거실 허브", signalStrength: 67, lastDetectedAt: iso(now, 28), batteryType: "Batteryless", icon: "wallet", notes: "", homeZoneId: "pz-living" },
+    { id: "pt-5", tagCode: "BOMI-F005", name: "외출가방", category: "외출가방", ownerType: "personal", status: "searching", lastDetectedZone: "현관", lastDetectedHub: "현관 허브", signalStrength: 55, lastDetectedAt: iso(now, 209), batteryType: "Batteryless", icon: "briefcase", notes: "06:55 외출 이벤트와 함께 이동", homeZoneId: "pz-entry" },
+    { id: "pt-6", tagCode: "BOMI-F006", name: "휴대폰", category: "휴대폰", ownerType: "personal", status: "normal", lastDetectedZone: "거실", lastDetectedHub: "거실 허브", signalStrength: 90, lastDetectedAt: iso(now, 3), batteryType: "Batteryless", icon: "smartphone", notes: "", homeZoneId: "pz-living" },
+    { id: "pt-7", tagCode: "BOMI-F007", name: "보조 안경", category: "보조 안경", ownerType: "personal", status: "missing", lastDetectedZone: "침실", lastDetectedHub: "침실 허브", signalStrength: 0, lastDetectedAt: iso(now, 1620), batteryType: "Batteryless", icon: "glasses", notes: "장기 미감지", homeZoneId: "pz-bed" },
+    { id: "pt-8", tagCode: "BOMI-F008", name: "복지카드", category: "복지카드", ownerType: "personal", status: "normal", lastDetectedZone: "현관", lastDetectedHub: "현관 허브", signalStrength: 72, lastDetectedAt: iso(now, 35), batteryType: "Batteryless", icon: "id-card", notes: "", homeZoneId: "pz-entry" },
   ];
 }
 
 export function orgTags(now: number): Tag[] {
-  return [
-    { id: "ot-1", tagCode: "TAG-H101", name: "휠체어 3번", category: "휠체어", ownerType: "organization", status: "normal", lastDetectedZone: "2층 병동", lastDetectedHub: "2층 병동 허브 A", signalStrength: 78, lastDetectedAt: iso(now, 5), batteryType: "Batteryless", icon: "armchair", department: "간호부", assignee: "김수진", importance: "high", homeZoneId: "oz-ward", notes: "" },
-    { id: "ot-2", tagCode: "TAG-H102", name: "이동식 초음파기", category: "이동식 의료기기", ownerType: "organization", status: "normal", lastDetectedZone: "3층 검사실", lastDetectedHub: "검사실 허브", signalStrength: 71, lastDetectedAt: iso(now, 9), batteryType: "Batteryless", icon: "activity", department: "영상의학과", assignee: "박준호", importance: "high", homeZoneId: "oz-exam", notes: "정밀 장비" },
-    { id: "ot-3", tagCode: "TAG-H103", name: "공용 태블릿 A12", category: "공용 태블릿", ownerType: "organization", status: "searching", lastDetectedZone: "1층 로비", lastDetectedHub: "로비 허브", signalStrength: 44, lastDetectedAt: iso(now, 3), batteryType: "Batteryless", icon: "tablet", department: "원무팀", assignee: "이가람", importance: "normal", homeZoneId: "oz-ward", notes: "지정 구역 이탈 감지" },
-    { id: "ot-4", tagCode: "TAG-H104", name: "약품 카트 2호", category: "약품 카트", ownerType: "organization", status: "normal", lastDetectedZone: "2층 병동", lastDetectedHub: "2층 병동 허브 B", signalStrength: 66, lastDetectedAt: iso(now, 14), batteryType: "Batteryless", icon: "package", department: "약제부", assignee: "정민아", importance: "high", homeZoneId: "oz-ward", notes: "" },
-    { id: "ot-5", tagCode: "TAG-H105", name: "청소 장비 세트", category: "청소 장비", ownerType: "organization", status: "normal", lastDetectedZone: "1층 로비", lastDetectedHub: "로비 허브", signalStrength: 58, lastDetectedAt: iso(now, 26), batteryType: "Batteryless", icon: "brush", department: "환경미화", assignee: "최영수", importance: "low", homeZoneId: "oz-lobby", notes: "" },
-    { id: "ot-6", tagCode: "TAG-L201", name: "원심분리기", category: "실험 장비", ownerType: "organization", status: "normal", lastDetectedZone: "연구실 A", lastDetectedHub: "연구실 A 허브", signalStrength: 81, lastDetectedAt: iso(now, 7), batteryType: "Batteryless", icon: "flask-conical", department: "연구1팀", assignee: "한지우", importance: "high", homeZoneId: "oz-labA", notes: "" },
-    { id: "ot-7", tagCode: "TAG-L202", name: "시약 박스 7", category: "시약 박스", ownerType: "organization", status: "lowSignal", lastDetectedZone: "연구실 B", lastDetectedHub: "연구실 B 허브", signalStrength: 24, lastDetectedAt: iso(now, 96), batteryType: "Batteryless", icon: "boxes", department: "연구2팀", assignee: "오세림", importance: "normal", homeZoneId: "oz-labB", notes: "허브 오프라인 영향" },
-    { id: "ot-8", tagCode: "TAG-L203", name: "공용 키트 03", category: "공용 키트", ownerType: "organization", status: "normal", lastDetectedZone: "연구실 A", lastDetectedHub: "연구실 A 허브", signalStrength: 63, lastDetectedAt: iso(now, 19), batteryType: "Batteryless", icon: "briefcase", department: "연구1팀", assignee: "한지우", importance: "normal", homeZoneId: "oz-labA", notes: "" },
-    { id: "ot-9", tagCode: "TAG-L204", name: "연구용 노트북 N4", category: "노트북", ownerType: "organization", status: "normal", lastDetectedZone: "연구실 A", lastDetectedHub: "연구실 A 허브", signalStrength: 70, lastDetectedAt: iso(now, 12), batteryType: "Batteryless", icon: "laptop", department: "연구1팀", assignee: "서동현", importance: "normal", homeZoneId: "oz-labA", notes: "" },
-    { id: "ot-10", tagCode: "TAG-S301", name: "공용 노트북 12", category: "공용 노트북", ownerType: "organization", status: "normal", lastDetectedZone: "장비 보관실", lastDetectedHub: "보관실 허브", signalStrength: 75, lastDetectedAt: iso(now, 8), batteryType: "Batteryless", icon: "laptop", department: "총무팀", assignee: "윤하늘", importance: "normal", homeZoneId: "oz-storage", notes: "" },
-    { id: "ot-11", tagCode: "TAG-S302", name: "프로젝터 B", category: "프로젝터", ownerType: "organization", status: "normal", lastDetectedZone: "회의실", lastDetectedHub: "회의실 허브", signalStrength: 67, lastDetectedAt: iso(now, 33), batteryType: "Batteryless", icon: "projector", department: "총무팀", assignee: "윤하늘", importance: "normal", homeZoneId: "oz-meeting", notes: "" },
-    { id: "ot-12", tagCode: "TAG-S303", name: "촬영 장비 케이스 B07", category: "촬영 장비", ownerType: "organization", status: "missing", lastDetectedZone: "장비 보관실", lastDetectedHub: "보관실 허브", signalStrength: 0, lastDetectedAt: iso(now, 2880), batteryType: "Batteryless", icon: "camera", department: "홍보팀", assignee: "강태리", importance: "high", homeZoneId: "oz-storage", notes: "48시간 미감지 · 분실 의심" },
-    { id: "ot-13", tagCode: "TAG-S304", name: "행사 음향 장비", category: "행사 장비", ownerType: "organization", status: "normal", lastDetectedZone: "장비 보관실", lastDetectedHub: "보관실 허브", signalStrength: 52, lastDetectedAt: iso(now, 41), batteryType: "Batteryless", icon: "speaker", department: "총무팀", assignee: "윤하늘", importance: "low", homeZoneId: "oz-storage", notes: "" },
-    { id: "ot-14", tagCode: "TAG-T401", name: "마스터키 세트", category: "마스터키", ownerType: "organization", status: "normal", lastDetectedZone: "1층 로비", lastDetectedHub: "로비 허브", signalStrength: 88, lastDetectedAt: iso(now, 2), batteryType: "Batteryless", icon: "key-round", department: "운영팀", assignee: "노수아", importance: "high", homeZoneId: "oz-lobby", notes: "반출 시 즉시 알림" },
-    { id: "ot-15", tagCode: "TAG-T402", name: "무전기 5번", category: "무전기", ownerType: "organization", status: "lowSignal", lastDetectedZone: "회의실", lastDetectedHub: "회의실 허브", signalStrength: 35, lastDetectedAt: iso(now, 58), batteryType: "Batteryless", icon: "radio", department: "운영팀", assignee: "노수아", importance: "normal", homeZoneId: "oz-meeting", notes: "" },
-    { id: "ot-16", tagCode: "TAG-H106", name: "공용 태블릿 A13", category: "공용 태블릿", ownerType: "organization", status: "normal", lastDetectedZone: "2층 병동", lastDetectedHub: "2층 병동 허브 A", signalStrength: 72, lastDetectedAt: iso(now, 16), batteryType: "Batteryless", icon: "tablet", department: "원무팀", assignee: "이가람", importance: "normal", homeZoneId: "oz-ward", notes: "" },
-  ];
-}
+  const people = [
+    ["ot-1", "김영자 님", "2층 생활실", "oh-living2-a", "2층 생활실 허브 A", "lowSignal", 62, 22, "생활지원 1팀", "이수진", "낙상 위험군 · 저녁 복약 확인 필요"],
+    ["ot-2", "박순옥 님", "2층 복약함", "oh-med", "2층 복약함 허브", "lowSignal", 48, 47, "생활지원 1팀", "박민아", "저녁 약 미확인"],
+    ["ot-3", "이정호 님", "1층 현관", "oh-entry", "1층 현관 허브", "searching", 53, 95, "생활지원 2팀", "정현우", "외출 후 귀가 확인 중"],
+    ["ot-4", "최말자 님", "3층 휴게실", "oh-rest", "3층 휴게실 허브", "normal", 77, 8, "생활지원 2팀", "한서윤", "활동 패턴 정상"],
+    ["ot-5", "윤정희 님", "2층 생활실", "oh-living2-b", "2층 생활실 허브 B", "normal", 69, 13, "방문돌봄팀", "오지훈", "오전 활동 확인"],
+    ["ot-6", "강춘자 님", "3층 생활실", "oh-living3", "3층 생활실 허브", "missing", 0, 65, "방문돌봄팀", "김다은", "허브 오프라인으로 확인 필요"],
+    ["ot-7", "서영수 님", "2층 생활실", "oh-living2-a", "2층 생활실 허브 A", "normal", 74, 6, "생활지원 1팀", "이수진", "정상 활동"],
+    ["ot-8", "한복례 님", "3층 휴게실", "oh-rest", "3층 휴게실 허브", "normal", 71, 18, "생활지원 2팀", "한서윤", "귀가 확인"],
+  ] as const;
 
-/* --------------------------- DETECTION LOGS --------------------------- */
+  return people.map(([id, name, zone, hubId, hubName, status, signal, minutes, department, assignee, notes], index) => ({
+    id,
+    tagCode: `BOMI-U${String(index + 1).padStart(3, "0")}`,
+    name,
+    category: "생활 안전 관리",
+    ownerType: "organization",
+    status,
+    lastDetectedZone: zone,
+    lastDetectedHub: hubName,
+    signalStrength: signal,
+    lastDetectedAt: iso(now, minutes),
+    batteryType: "Batteryless",
+    icon: "user",
+    department,
+    assignee,
+    importance: index < 3 ? "high" : "normal",
+    homeZoneId:
+      hubId === "oh-entry"
+        ? "oz-entry"
+        : hubId === "oh-med"
+          ? "oz-med"
+          : hubId === "oh-living3"
+            ? "oz-living3"
+            : hubId === "oh-rest"
+              ? "oz-rest"
+              : "oz-living2",
+    notes,
+  }));
+}
 
 export function personalLogs(now: number): DetectionLog[] {
   return [
-    { id: "pl-1", tagId: "pt-5", tagName: "스마트폰", hubId: "ph-living", hubName: "거실 허브", zone: "거실", signalStrength: 90, timestamp: iso(now, 1) },
-    { id: "pl-2", tagId: "pt-1", tagName: "지갑", hubId: "ph-entry", hubName: "현관 허브", zone: "현관", signalStrength: 82, timestamp: iso(now, 4) },
-    { id: "pl-3", tagId: "pt-2", tagName: "자동차 열쇠", hubId: "ph-entry", hubName: "현관 허브", zone: "현관", signalStrength: 74, timestamp: iso(now, 6) },
-    { id: "pl-4", tagId: "pt-4", tagName: "안경 케이스", hubId: "ph-bed", hubName: "침실 허브", zone: "침실", signalStrength: 68, timestamp: iso(now, 11) },
-    { id: "pl-5", tagId: "pt-9", tagName: "보조 열쇠", hubId: "ph-bed", hubName: "침실 허브", zone: "침실", signalStrength: 61, timestamp: iso(now, 18) },
-    { id: "pl-6", tagId: "pt-7", tagName: "약통", hubId: "ph-living", hubName: "거실 허브", zone: "주방", signalStrength: 47, timestamp: iso(now, 22) },
-    { id: "pl-7", tagId: "pt-3", tagName: "TV 리모컨", hubId: "ph-living", hubName: "거실 허브", zone: "거실", signalStrength: 31, timestamp: iso(now, 38) },
+    { id: "pl-1", tagId: "pt-6", tagName: "휴대폰", hubId: "ph-living", hubName: "거실 허브", zone: "거실", signalStrength: 90, timestamp: iso(now, 3) },
+    { id: "pl-2", tagId: "pt-3", tagName: "열쇠", hubId: "ph-entry", hubName: "현관 허브", zone: "현관", signalStrength: 81, timestamp: iso(now, 12) },
+    { id: "pl-3", tagId: "pt-4", tagName: "지갑", hubId: "ph-living", hubName: "거실 허브", zone: "거실", signalStrength: 67, timestamp: iso(now, 28) },
+    { id: "pl-4", tagId: "pt-8", tagName: "복지카드", hubId: "ph-entry", hubName: "현관 허브", zone: "현관", signalStrength: 72, timestamp: iso(now, 35) },
+    { id: "pl-5", tagId: "pt-2", tagName: "아침 약통", hubId: "ph-kitchen", hubName: "주방 허브", zone: "복약함", signalStrength: 78, timestamp: iso(now, 152) },
   ];
 }
 
 export function orgLogs(now: number): DetectionLog[] {
-  const out: DetectionLog[] = [];
-  const base: [string, string, string, string, number][] = [
-    ["ot-14", "마스터키 세트", "oh-lobby", "로비 허브", 88],
-    ["ot-6", "원심분리기", "oh-labA", "연구실 A 허브", 81],
-    ["ot-1", "휠체어 3번", "oh-ward-a", "2층 병동 허브 A", 78],
-    ["ot-10", "공용 노트북 12", "oh-storage", "보관실 허브", 75],
-    ["ot-16", "공용 태블릿 A13", "oh-ward-a", "2층 병동 허브 A", 72],
-    ["ot-2", "이동식 초음파기", "oh-exam", "검사실 허브", 71],
-    ["ot-9", "연구용 노트북 N4", "oh-labA", "연구실 A 허브", 70],
-    ["ot-3", "공용 태블릿 A12", "oh-lobby", "로비 허브", 44],
+  return [
+    { id: "ol-1", tagId: "ot-7", tagName: "서영수 님", hubId: "oh-living2-a", hubName: "2층 생활실 허브 A", zone: "2층 생활실", signalStrength: 74, timestamp: iso(now, 6) },
+    { id: "ol-2", tagId: "ot-4", tagName: "최말자 님", hubId: "oh-rest", hubName: "3층 휴게실 허브", zone: "3층 휴게실", signalStrength: 77, timestamp: iso(now, 8) },
+    { id: "ol-3", tagId: "ot-5", tagName: "윤정희 님", hubId: "oh-living2-b", hubName: "2층 생활실 허브 B", zone: "2층 생활실", signalStrength: 69, timestamp: iso(now, 13) },
+    { id: "ol-4", tagId: "ot-1", tagName: "김영자 님", hubId: "oh-living2-a", hubName: "2층 생활실 허브 A", zone: "2층 생활실", signalStrength: 62, timestamp: iso(now, 22) },
+    { id: "ol-5", tagId: "ot-2", tagName: "박순옥 님", hubId: "oh-med", hubName: "2층 복약함 허브", zone: "2층 복약함", signalStrength: 48, timestamp: iso(now, 47) },
   ];
-  const zoneByHub: Record<string, string> = {
-    "oh-lobby": "1층 로비",
-    "oh-labA": "연구실 A",
-    "oh-ward-a": "2층 병동",
-    "oh-storage": "장비 보관실",
-    "oh-exam": "3층 검사실",
-  };
-  base.forEach((b, i) => {
-    out.push({
-      id: `ol-${i + 1}`,
-      tagId: b[0],
-      tagName: b[1],
-      hubId: b[2],
-      hubName: b[3],
-      zone: zoneByHub[b[2]] ?? "—",
-      signalStrength: b[4],
-      timestamp: iso(now, 2 + i * 6),
-    });
-  });
-  return out;
 }
-
-/* --------------------------- NOTIFICATIONS --------------------------- */
 
 export function personalNotifications(now: number): AppNotification[] {
   return [
-    { id: "pn-1", ownerType: "personal", kind: "info", title: "지갑 위치 업데이트", body: "지갑이 현관 허브에서 마지막으로 감지되었습니다.", timestamp: iso(now, 4), read: false },
-    { id: "pn-2", ownerType: "personal", kind: "danger", title: "리모컨 미감지", body: "TV 리모컨 신호가 약합니다. 거실 허브 근처를 확인해보세요.", timestamp: iso(now, 38), read: false },
-    { id: "pn-3", ownerType: "personal", kind: "warn", title: "허브 오프라인", body: "서재 허브가 오프라인 상태입니다. 전원과 네트워크를 확인하세요.", timestamp: iso(now, 142), read: false },
-    { id: "pn-4", ownerType: "personal", kind: "danger", title: "분실 의심", body: "여권 서류함이 24시간 이상 감지되지 않았습니다.", timestamp: iso(now, 1680), read: true },
-    { id: "pn-5", ownerType: "personal", kind: "ok", title: "찾음 처리", body: "안경 케이스를 찾음 처리했습니다.", timestamp: iso(now, 300), read: true },
+    { id: "pn-1", ownerType: "personal", kind: "warn", title: "복약 미확인", body: "저녁 약 복용이 아직 확인되지 않았어요.", timestamp: iso(now, 18), read: false },
+    { id: "pn-2", ownerType: "personal", kind: "danger", title: "장시간 무반응", body: "침실에서 20분 이상 움직임이 감지되지 않았어요.", timestamp: iso(now, 32), read: false },
+    { id: "pn-3", ownerType: "personal", kind: "ok", title: "활동 감지", body: "거실에서 활동이 감지되었습니다.", timestamp: iso(now, 3), read: false },
+    { id: "pn-4", ownerType: "personal", kind: "info", title: "외출 감지", body: "현관에서 외출 이벤트가 감지되었습니다.", timestamp: iso(now, 209), read: true },
+    { id: "pn-5", ownerType: "personal", kind: "info", title: "보호자 확인 요청", body: "보호자 확인 요청이 전송되었습니다.", timestamp: iso(now, 24), read: true },
   ];
 }
 
 export function orgNotifications(now: number): AppNotification[] {
   return [
-    { id: "on-1", ownerType: "organization", kind: "warn", title: "구역 이탈", body: "휠체어 3번이 2층 병동에서 1층 로비로 이동했습니다.", timestamp: iso(now, 5), read: false },
-    { id: "on-2", ownerType: "organization", kind: "danger", title: "지정 구역 밖 감지", body: "공용 태블릿 A12가 지정 구역 밖에서 감지되었습니다.", timestamp: iso(now, 3), read: false },
-    { id: "on-3", ownerType: "organization", kind: "danger", title: "장기 미감지", body: "촬영 장비 케이스 B07이 48시간 동안 감지되지 않았습니다.", timestamp: iso(now, 120), read: false },
-    { id: "on-4", ownerType: "organization", kind: "warn", title: "허브 이상", body: "연구실 B 허브가 오프라인 상태입니다. 시약 박스 7 신호가 약합니다.", timestamp: iso(now, 220), read: false },
-    { id: "on-5", ownerType: "organization", kind: "info", title: "허브 경고", body: "2층 병동 허브 B의 동기화가 지연되고 있습니다.", timestamp: iso(now, 17), read: true },
+    { id: "on-1", ownerType: "organization", kind: "danger", title: "장시간 무반응", body: "김영자 님 · 20분 이상 무반응 · 2층 생활실", timestamp: iso(now, 22), read: false },
+    { id: "on-2", ownerType: "organization", kind: "warn", title: "복약 미확인", body: "박순옥 님 · 저녁 약 미확인 · 복약함", timestamp: iso(now, 47), read: false },
+    { id: "on-3", ownerType: "organization", kind: "warn", title: "귀가 확인 필요", body: "이정호 님 · 외출 후 미귀가 · 현관", timestamp: iso(now, 95), read: false },
+    { id: "on-4", ownerType: "organization", kind: "danger", title: "허브 오프라인", body: "3층 생활실 허브가 오프라인 상태입니다.", timestamp: iso(now, 65), read: false },
+    { id: "on-5", ownerType: "organization", kind: "ok", title: "담당자 확인 완료", body: "최말자 님의 활동 이벤트를 담당자가 확인했습니다.", timestamp: iso(now, 12), read: true },
   ];
 }
 
-/* --------------------------- ORG MEMBERS --------------------------- */
+export function personalCareEvents(now: number): CareEvent[] {
+  return [
+    { id: "pce-1", ownerType: "personal", type: "활동 감지", location: "거실", severity: "normal", guardianNotified: false, status: "confirmed", timestamp: iso(now, 3), description: "10:24 활동 감지 · 거실" },
+    { id: "pce-2", ownerType: "personal", type: "복약 확인", location: "복약함", severity: "info", guardianNotified: false, status: "confirmed", timestamp: iso(now, 132), description: "08:15 약 보관함 열림 · 복약함" },
+    { id: "pce-3", ownerType: "personal", type: "복약 확인", location: "복약함", severity: "normal", guardianNotified: true, status: "confirmed", timestamp: iso(now, 149), description: "07:58 약 복용 감지 · 복약함" },
+    { id: "pce-4", ownerType: "personal", type: "활동 감지", location: "거실", severity: "normal", guardianNotified: false, status: "confirmed", timestamp: iso(now, 177), description: "07:30 활동 감지 · 거실" },
+    { id: "pce-5", ownerType: "personal", type: "외출 감지", location: "현관", severity: "info", guardianNotified: true, status: "confirmed", timestamp: iso(now, 212), description: "06:55 외출 감지 · 현관" },
+    { id: "pce-6", ownerType: "personal", type: "장시간 무반응", location: "침실", severity: "warning", guardianNotified: true, status: "resolved", timestamp: iso(now, 412), description: "침실에서 20분 이상 활동이 없어 확인 요청" },
+    { id: "pce-7", ownerType: "personal", type: "낙상 의심", location: "거실", severity: "critical", guardianNotified: true, status: "resolved", timestamp: iso(now, 1440), description: "평소와 다른 급격한 신호 변화가 감지됨" },
+    { id: "pce-8", ownerType: "personal", type: "귀가 감지", location: "현관", severity: "info", guardianNotified: false, status: "confirmed", timestamp: iso(now, 1530), description: "현관에서 귀가 이벤트 감지" },
+  ];
+}
+
+export function organizationCareEvents(now: number): CareEvent[] {
+  return [
+    { id: "oce-1", ownerType: "organization", personName: "김영자 님", type: "장시간 무반응", location: "2층 생활실", severity: "critical", guardianNotified: true, status: "checking", timestamp: iso(now, 22), description: "20분 이상 활동이 감지되지 않았습니다." },
+    { id: "oce-2", ownerType: "organization", personName: "박순옥 님", type: "복약 미확인", location: "2층 복약함", severity: "warning", guardianNotified: true, status: "new", timestamp: iso(now, 47), description: "저녁 약통 사용이 아직 확인되지 않았습니다." },
+    { id: "oce-3", ownerType: "organization", personName: "이정호 님", type: "보호자 확인 요청", location: "1층 현관", severity: "warning", guardianNotified: true, status: "checking", timestamp: iso(now, 95), description: "외출 후 평소 귀가 시간이 지났습니다." },
+    { id: "oce-4", ownerType: "organization", type: "허브 오프라인", location: "3층 생활실", severity: "critical", guardianNotified: false, status: "new", timestamp: iso(now, 65), description: "3층 생활실 허브 연결을 확인해주세요." },
+    { id: "oce-5", ownerType: "organization", personName: "최말자 님", type: "활동 감지", location: "3층 휴게실", severity: "normal", guardianNotified: false, status: "confirmed", timestamp: iso(now, 8), description: "평소 오전 활동 패턴과 유사합니다." },
+    { id: "oce-6", ownerType: "organization", personName: "한복례 님", type: "귀가 감지", location: "1층 현관", severity: "info", guardianNotified: false, status: "confirmed", timestamp: iso(now, 18), description: "정상 귀가 이벤트가 확인되었습니다." },
+    { id: "oce-7", ownerType: "organization", personName: "윤정희 님", type: "복약 확인", location: "2층 복약함", severity: "normal", guardianNotified: false, status: "confirmed", timestamp: iso(now, 33), description: "아침 복약이 확인되었습니다." },
+    { id: "oce-8", ownerType: "organization", personName: "서영수 님", type: "담당자 확인 완료", location: "2층 생활실", severity: "info", guardianNotified: true, status: "resolved", timestamp: iso(now, 74), description: "담당자 전화 확인이 완료되었습니다." },
+  ];
+}
 
 export function orgMembers(): OrgMember[] {
   return [
-    { id: "m-1", name: "노수아", email: "sua.noh@findit.io", role: "admin", zones: "전체", status: "active" },
-    { id: "m-2", name: "박준호", email: "junho.park@findit.io", role: "manager", zones: "3층 검사실 · 연구실 A/B", status: "active" },
-    { id: "m-3", name: "김수진", email: "sujin.kim@findit.io", role: "staff", zones: "2층 병동", status: "active" },
-    { id: "m-4", name: "이가람", email: "garam.lee@findit.io", role: "staff", zones: "1층 로비 · 2층 병동", status: "active" },
-    { id: "m-5", name: "윤하늘", email: "haneul.yoon@findit.io", role: "manager", zones: "장비 보관실 · 회의실", status: "active" },
-    { id: "m-6", name: "강태리", email: "taeri.kang@findit.io", role: "viewer", zones: "장비 보관실", status: "invited" },
-    { id: "m-7", name: "오세림", email: "serim.oh@findit.io", role: "staff", zones: "연구실 B", status: "disabled" },
+    { id: "m-1", name: "노수아", email: "sua.noh@bomi.care", role: "admin", zones: "전체", status: "active" },
+    { id: "m-2", name: "이수진", email: "sujin.lee@bomi.care", role: "manager", zones: "2층 생활실 · 복약함", status: "active" },
+    { id: "m-3", name: "박민아", email: "mina.park@bomi.care", role: "staff", zones: "2층 복약함", status: "active" },
+    { id: "m-4", name: "정현우", email: "hyunwoo.jung@bomi.care", role: "staff", zones: "1층 현관 · 2층 생활실", status: "active" },
+    { id: "m-5", name: "한서윤", email: "seoyoon.han@bomi.care", role: "manager", zones: "3층 생활실 · 휴게실", status: "active" },
+    { id: "m-6", name: "김다은", email: "daeun.kim@bomi.care", role: "viewer", zones: "3층 생활실", status: "invited" },
   ];
 }
 
 export const personalCategories = [
-  "지갑", "열쇠", "리모컨", "안경 케이스", "스마트폰",
-  "학생증/사원증", "약통", "서류/파일", "기타",
+  "약통",
+  "열쇠",
+  "지갑",
+  "외출가방",
+  "휴대폰",
+  "보조 안경",
+  "복지카드",
+  "기타 필수 물품",
 ];
 
 export const orgCategories = [
-  "휠체어", "이동식 의료기기", "공용 태블릿", "약품 카트", "청소 장비",
-  "실험 장비", "시약 박스", "공용 키트", "노트북", "장비 케이스",
-  "마스터키", "청소 카트", "비품 박스", "무전기",
-  "공용 노트북", "프로젝터", "촬영 장비", "행사 장비", "회의실 비품",
+  "생활 안전 관리",
+  "집중 돌봄",
+  "복약 관리",
+  "방문돌봄",
+  "주간보호",
 ];
